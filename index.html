@@ -373,7 +373,8 @@ const LOCS=[['Район Северный',91,'от 120 000 ₽/мес','Спр�
 const KEY='ob-chatbank-v1';
 const st0={theme:'light',view:'home',stage:'active',bal:15000000,t:{tax:2,bill:104,sign:17},stripX:0,piggy:0,pig:0,cardOn:0,msgs:[],seq:1,ls:{},notif:{push:1,mail:0},cover:null};
 let st;try{st={...JSON.parse(JSON.stringify(st0)),...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch(e){st=JSON.parse(JSON.stringify(st0))}
-const save=()=>{try{const c={...st,cover:null};localStorage.setItem(KEY,JSON.stringify(c))}catch(e){}};
+st.view='home';
+const save=()=>{try{const c={...st,cover:null,view:'home'};localStorage.setItem(KEY,JSON.stringify(c))}catch(e){}};
 const stepDone=([id,,d])=>d||st.ls[id];
 
 /* ================= Chat engine ================= */
