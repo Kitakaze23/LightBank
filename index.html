@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Отраслевой банк — Бизнес-помощник</title>
+<meta name="theme-color" content="#000000">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Exo+2:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/* ================= Tokens ================= */
+.app{
+ --app:#000;--surf:#fff;--surf2:#F2F3F5;--ink:#1F1F22;--ink2:#3A3B40;--mut:#8A8D93;--line:#ECEDF0;
+ --chip:#fff;--chip-ink:#2B2C30;--chip-sh:0 1px 2px rgba(0,0,0,.06),0 2px 8px rgba(0,0,0,.06);
+ --acc:#1A9E95;--acc-d:#13857D;--acc-s:#E2F4F1;--acc-ink:#0E6F68;
+ --w:#F4F5F7;--ubub:#E3F4F1;--uink:#0F3F3B;--in:#fff;--in-sh:0 1px 3px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.06);
+ --bad:#E0353B;--ok:#1FAF84;--warn:#F07A12;
+ --pbg:linear-gradient(180deg,#EEEFF2 0%,#E5E7EB 100%);--glass:rgba(255,255,255,.66);--glass-b:rgba(255,255,255,.9);--tile:#fff;
+ --sheet:#fff;--ov:rgba(10,10,12,.45);
+}
+.app[data-theme=dark]{
+ --surf:#262628;--surf2:#333336;--ink:#F2F2F4;--ink2:#D6D7DA;--mut:#9A9CA2;--line:#38383C;
+ --chip:#333336;--chip-ink:#fff;--chip-sh:none;
+ --acc:#2BB5AB;--acc-d:#239C93;--acc-s:#1D3A38;--acc-ink:#7FE0D6;
+ --w:#313134;--ubub:#1E3E3B;--uink:#E6FFFB;--in:#333336;--in-sh:none;
+ --pbg:linear-gradient(180deg,#1E1E20 0%,#161618 100%);--glass:rgba(44,44,48,.72);--glass-b:rgba(255,255,255,.06);--tile:#2E2E31;
+ --sheet:#262628;--ov:rgba(0,0,0,.6);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+input,textarea,select{font-size:16px}
+body{background:#373B45;font:400 15px/1.4 Onest,-apple-system,"SF Pro Text","Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+button,input{font:inherit;color:inherit;background:none;border:0}
+button{cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent}
+svg{display:block;flex:none}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:10px}
+
+/* ================= Device ================= */
+.app{position:relative;height:100dvh;width:100%;background:var(--app);color:var(--ink);overflow:hidden;display:flex;flex-direction:column;--top:max(env(safe-area-inset-top,0px),10px)}
+.sb{display:none}
+@media(min-width:520px){
+ .app.app{position:absolute;left:50%;top:50%;width:390px;height:844px;border-radius:52px;transform:translate(-50%,-50%) scale(var(--k,1));box-shadow:0 0 0 1px rgba(255,255,255,.08),0 40px 90px -30px rgba(0,0,0,.6);--top:44px}
+ .sb{display:flex;position:absolute;top:0;left:0;right:0;height:44px;padding:15px 30px 0;justify-content:space-between;align-items:center;font-weight:600;font-size:15px;z-index:30;pointer-events:none;color:var(--ink)}
+ .sb.lt{color:#fff}
+}
+#view{flex:1;display:flex;flex-direction:column;min-height:0;position:relative}
+
+/* ================= Home: header ================= */
+.top{background:var(--surf);border-radius:0 0 28px 28px;padding:calc(var(--top) + 8px) 0 10px;position:relative;z-index:3;transition:padding .3s}
+#strip{margin-top:-28px;position:relative;z-index:2;max-height:140px;overflow:hidden;transition:max-height .3s ease,margin .3s ease,opacity .25s}
+.acw{display:grid;grid-template-rows:1fr;transition:grid-template-rows .3s ease,opacity .25s}
+.acw>div{overflow:hidden;min-height:0}
+.hdl{display:block;width:100%;height:0;overflow:hidden;transition:height .3s}
+.hdl i{display:block;width:36px;height:4px;border-radius:4px;background:var(--line);margin:6px auto 0}
+.app[data-theme=dark] .hdl i{background:#4a4a4e}
+.app.cmp .acw{grid-template-rows:0fr;opacity:0}
+.app.cmp .top{padding-bottom:4px;cursor:pointer}
+.app.cmp .hdl{height:14px}
+.app.cmp #strip{max-height:0;margin-top:0;opacity:0}
+.hrow{display:flex;align-items:center;gap:6px;padding:0 14px 0 12px}
+.ib{width:40px;height:40px;display:grid;place-items:center;color:var(--acc);border-radius:12px;position:relative}
+.ib svg{width:24px;height:24px}
+.ib .dot{position:absolute;top:8px;right:9px;width:8px;height:8px;border-radius:50%;background:#FF7A1A;border:2px solid var(--surf)}
+.org{display:flex;align-items:center;gap:4px;font-weight:600;font-size:17px;flex:1;min-width:0;padding:6px 4px}
+.org span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.org svg{width:18px;height:18px;color:var(--mut)}
+.accs{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:8px 14px 4px;scroll-padding:0 14px}
+.accs::-webkit-scrollbar{display:none}
+.qrt{flex:none;width:46px;border-radius:16px;background:var(--surf2);display:grid;place-items:center;color:var(--acc);scroll-snap-align:start}
+.qrt svg{width:26px;height:26px}
+.acc{flex:none;width:calc(100% - 66px);min-height:82px;border-radius:16px;background:var(--surf2);padding:14px 14px 12px 16px;display:flex;gap:10px;align-items:center;scroll-snap-align:start;text-align:left}
+.acc .l{flex:1;min-width:0}
+.acc .bal{display:flex;align-items:center;gap:8px;font-weight:600;font-size:17px;white-space:nowrap}
+.acc .bal i{display:block;width:26px;height:17px;border-radius:4px;background:linear-gradient(135deg,#d9dbe0,#f4f5f7 45%,#c9ccd2);box-shadow:inset 0 0 0 .5px rgba(0,0,0,.08);flex:none}
+.acc .bal i.pg{background:linear-gradient(135deg,#7FE0C4,#1A9E95)}
+.acc .bal i.cd{background:linear-gradient(135deg,#3A3B40,#6b6d74)}
+.acc .sub{font-size:13px;color:var(--mut);margin-top:4px}
+.acc .fig{font-size:10.5px;text-align:right;line-height:1.45;color:var(--mut);white-space:nowrap}
+.acc .fig .in{color:var(--acc)}
+.acc .fig .o{color:var(--ink2)}
+.dots{display:flex;gap:4px;justify-content:center;margin-top:8px}
+.dots i{width:4px;height:4px;border-radius:4px;background:var(--line);transition:.2s}
+.app[data-theme=dark] .dots i{background:#4a4a4e}
+.dots i.on{width:14px;background:var(--mut)}
+
+/* ================= Status strip ================= */
+.strip{padding:36px 14px 10px;position:relative;z-index:2;color:#fff}
+.strip.orange{background:linear-gradient(90deg,#FF8A24,#F7621A 60%,#E9500F)}
+.strip.green{background:linear-gradient(90deg,#08C07B,#06B07C 60%,#0A8C7A);padding:34px 14px 8px;display:flex;align-items:center;justify-content:center;font-size:12.5px;position:relative}
+.strip.green .x{position:absolute;right:14px;bottom:6px;width:24px;height:24px;display:grid;place-items:center;opacity:.8}
+.strip.green .x svg{width:14px;height:14px}
+.tasks{display:flex;gap:8px}
+.tasks button{flex:1;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:6px;background:rgba(255,255,255,.18);border-radius:12px;padding:7px 8px 7px 10px;font-size:12px;line-height:1.25;color:#fff;transition:background .15s}
+.tasks button:hover{background:rgba(255,255,255,.26)}
+.tasks b{font-weight:600;font-size:11px;background:rgba(255,255,255,.25);border-radius:8px;padding:3px 6px;white-space:nowrap}
+
+/* ================= Chat card ================= */
+.chat{flex:1;min-height:0;margin-top:8px;background:var(--surf);border-radius:28px 28px 0 0;display:flex;flex-direction:column;position:relative;overflow:hidden}
+@media(min-width:520px){.chat{border-radius:28px 28px 52px 52px}}
+.chat .menu{position:absolute;top:10px;right:12px;z-index:4;width:36px;height:36px;border-radius:12px;background:var(--surf);display:grid;place-items:center;color:var(--acc)}
+.app[data-theme=dark] .chat .menu{background:#3a3b3e}
+.chat .menu svg{width:22px;height:22px}
+.feed{flex:1;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain;display:flex;flex-direction:column}
+.feed::-webkit-scrollbar{display:none}
+.hello{margin:auto 0;padding:40px 0 20px;text-align:center}
+.hello h1{font-size:22px;line-height:1.32;font-weight:500;letter-spacing:-.01em;padding:0 24px}
+.rows{margin-top:28px;display:flex;flex-direction:column;gap:10px}
+.mq{overflow:hidden;padding:3px 0;-webkit-mask-image:linear-gradient(90deg,transparent,#000 24px,#000 calc(100% - 24px),transparent);mask-image:linear-gradient(90deg,transparent,#000 24px,#000 calc(100% - 24px),transparent)}
+.mqt{display:flex;width:max-content;animation:mq var(--d,48s) linear infinite;will-change:transform}
+.mq.rev .mqt{animation-direction:reverse}
+.mqg{display:flex;gap:10px;padding-right:10px}
+.mq:hover .mqt,.mq.hold .mqt,.mq:focus-within .mqt{animation-play-state:paused}
+@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){.mqt{animation:none}.mq{overflow-x:auto}}
+.chip{flex:none;background:var(--chip);color:var(--chip-ink);box-shadow:var(--chip-sh);border-radius:10px;padding:8px 14px;font-size:13px;font-weight:600;white-space:nowrap;transition:transform .1s}
+.chip:active{transform:scale(.96)}
+.chip.on{background:var(--ink2);color:var(--surf)}
+.msgs{display:flex;flex-direction:column;gap:14px;padding:56px 14px 12px}
+.feed{mask-image:linear-gradient(transparent 0,#000 52px);-webkit-mask-image:linear-gradient(transparent 0,#000 52px)}
+.m{max-width:100%}
+.m.u{align-self:flex-end;max-width:82%;background:var(--ubub);color:var(--uink);border-radius:18px 18px 6px 18px;padding:10px 14px;font-size:15px}
+.m.b{align-self:stretch;display:flex;gap:10px}
+.m.b .av{width:28px;height:28px;border-radius:10px;background:var(--acc-s);color:var(--acc);display:grid;place-items:center;flex:none;margin-top:1px}
+.m.b .av svg{width:16px;height:16px}
+.m.b .bd{flex:1;min-width:0}
+.m.b .tx{font-size:15px;line-height:1.45;padding-top:3px}
+.m.b .tx b{font-weight:600}
+.m.b .nm{font-size:12px;color:var(--mut);margin-bottom:2px}
+.typing{display:flex;gap:4px;padding:10px 2px}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--mut);animation:bl 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes bl{0%,100%{opacity:.25}50%{opacity:1}}
+.sug{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:6px 14px 2px}
+.sug::-webkit-scrollbar{display:none}
+.sug .chip{padding:7px 12px;font-size:12.5px}
+.inp{margin:8px 8px 0;background:var(--in);box-shadow:var(--in-sh);border-radius:18px;padding:12px 12px 10px 14px;border:1px solid var(--line)}
+.app[data-theme=dark] .inp{border-color:transparent}
+.inp input{width:100%;outline:0;font-size:16px;padding:0 0 8px}
+.inp input::placeholder{color:var(--mut)}
+.inp .ia{display:flex;align-items:center;justify-content:space-between}
+.inp .clip{width:28px;height:28px;display:grid;place-items:center;color:var(--mut);margin-left:-4px}
+.inp .clip svg{width:22px;height:22px}
+.inp .go{width:32px;height:32px;border-radius:50%;background:var(--acc);color:#fff;display:grid;place-items:center;opacity:0;transform:scale(.6);transition:.15s;pointer-events:none}
+.inp .go.on{opacity:1;transform:none;pointer-events:auto}
+.inp .go svg{width:18px;height:18px}
+.terms{text-align:center;font-size:10.5px;color:#7B6FE0;padding:8px 0 calc(10px + env(safe-area-inset-bottom,0px))}
+@media(min-width:520px){.terms{padding-bottom:22px}}
+.app[data-theme=dark] .terms{color:#8F85F0}
+
+/* ================= Widgets (в чате) ================= */
+.wg{background:var(--w);border-radius:18px;padding:14px;margin-top:10px}
+.wg+.wg{margin-top:8px}
+.wh{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;color:var(--mut);margin-bottom:6px}
+.wt{font-size:17px;font-weight:600;line-height:1.25}
+.wbig{font-size:26px;font-weight:600;letter-spacing:-.01em;line-height:1.15}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:5px 0;font-size:14px}
+.kv span{color:var(--mut)}.kv b{font-weight:500;text-align:right}
+.it{display:flex;align-items:center;gap:12px;width:100%;padding:10px 0}
+.it+.it{border-top:1px solid var(--line)}
+.it .cb{width:22px;height:22px;border-radius:7px;border:2px solid #C7CAD0;display:grid;place-items:center;flex:none;color:#fff}
+.app[data-theme=dark] .it .cb{border-color:#5a5b60}
+.it .cb.on{background:var(--acc);border-color:var(--acc)}
+.it .cb svg{width:14px;height:14px}
+.it .nn{flex:1;min-width:0}.it .nn b{display:block;font-weight:500;font-size:14px}.it .nn small{font-size:12.5px;color:var(--mut)}
+.it .sm{font-weight:500;font-size:14px;white-space:nowrap}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:46px;border-radius:14px;background:var(--acc);color:#fff;font-weight:600;font-size:15px;text-align:center;margin-top:12px;transition:background .15s,transform .1s}
+.btn svg{width:18px;height:18px}.btn:hover{background:var(--acc-d)}.btn:active{transform:scale(.98)}
+.btn.gh{background:var(--surf);color:var(--acc)}
+.app[data-theme=dark] .btn.gh{background:#3d3d41}
+.btns{display:flex;gap:8px}.btns .btn{flex:1}
+.wchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.wchips .chip{padding:7px 11px;font-size:12.5px;font-weight:500;box-shadow:none;background:var(--surf)}
+.app[data-theme=dark] .wchips .chip{background:#3d3d41}
+.wchips .chip.on{background:var(--ink2);color:var(--surf)}
+.app[data-theme=dark] .wchips .chip.on{background:#fff;color:#1f1f22}
+.lbl{font-size:13px;color:var(--mut);margin-top:12px}
+.rng{width:100%;margin-top:6px;accent-color:var(--acc)}
+.done{display:flex;align-items:center;gap:10px;color:var(--acc-ink);background:var(--acc-s);border-radius:14px;padding:11px 12px;font-size:14px;margin-top:10px}
+.done svg{width:18px;height:18px;flex:none}
+.fld{display:block;margin-top:8px}
+.fld span{display:block;font-size:12px;color:var(--mut);margin-bottom:3px}
+.fld input{width:100%;background:var(--surf);border-radius:12px;padding:10px 12px;font-size:16px;outline:0;border:1px solid var(--line)}
+.app[data-theme=dark] .fld input{background:#3d3d41;border-color:transparent}
+.bars{display:flex;align-items:flex-end;gap:6px;height:84px;margin-top:10px}
+.bars div{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.bars i{display:block;width:100%;max-width:14px;border-radius:99px;background:var(--acc);opacity:.45}
+.bars div:last-child i{opacity:1}
+.bars small{font-size:10.5px;color:var(--mut)}
+.lev{display:flex;gap:10px;align-items:flex-start;padding:10px 0;width:100%}
+.lev+.lev{border-top:1px solid var(--line)}
+.lev .n{width:24px;height:24px;border-radius:8px;background:var(--acc-s);color:var(--acc);display:grid;place-items:center;font-weight:600;font-size:13px;flex:none}
+.lev b{display:block;font-weight:500;font-size:14px}.lev small{color:var(--mut);font-size:12.5px}
+.lev .e{margin-left:auto;color:var(--acc);font-weight:600;font-size:13px;white-space:nowrap}
+.mgr{display:flex;gap:10px;align-items:center}
+.mgr .ph{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#9BE7D8,#1A9E95);color:#fff;display:grid;place-items:center;font-weight:600}
+.qrbox{width:150px;height:150px;margin:6px auto 4px;background:#fff;border-radius:14px;padding:10px}
+.pc{display:flex;gap:12px}
+.pc .img{width:76px;height:76px;border-radius:14px;flex:none;background:radial-gradient(circle at 35% 35%,#F7D9A6,#D9944A 60%,#A9652A)}
+.pc b{font-weight:600}
+.tag{display:inline-block;font-size:11px;font-weight:600;border-radius:7px;padding:2px 7px;background:var(--acc-s);color:var(--acc-ink)}
+.tag.o{background:#FFF0E2;color:#C25A00}
+.app[data-theme=dark] .tag.o{background:#47321f;color:#FFB06B}
+.tag.r{background:#FDE9EA;color:#C5232A}
+.app[data-theme=dark] .tag.r{background:#4a2426;color:#FF8F94}
+
+/* ================= Profile ================= */
+.prof{flex:1;overflow-y:auto;scrollbar-width:none;background:var(--pbg);position:relative}
+.prof::-webkit-scrollbar{display:none}
+.hero{height:300px;position:relative;overflow:hidden;
+ background:
+ radial-gradient(60% 55% at 22% 30%,rgba(255,236,200,.95),rgba(255,236,200,0) 70%),
+ radial-gradient(50% 50% at 75% 22%,rgba(226,160,86,.95),rgba(226,160,86,0) 70%),
+ radial-gradient(45% 45% at 60% 70%,rgba(190,112,48,.9),rgba(190,112,48,0) 70%),
+ radial-gradient(40% 40% at 15% 85%,rgba(150,84,36,.85),rgba(150,84,36,0) 70%),
+ radial-gradient(35% 35% at 92% 80%,rgba(244,205,150,.9),rgba(244,205,150,0) 70%),
+ linear-gradient(135deg,#C98A4B,#8C5426);background-size:cover;background-position:center}
+.cvr{position:absolute;inset:0;background:#B23354;display:flex;align-items:center;justify-content:center;padding:40px 22px 60px}
+.cvr svg.tx{position:absolute;inset:0;width:100%;height:100%;opacity:.55;mix-blend-mode:multiply}
+.cvr:before{content:"";position:absolute;inset:0;background:radial-gradient(80% 70% at 30% 60%,rgba(214,82,116,.55),transparent 70%),radial-gradient(60% 60% at 85% 20%,rgba(120,20,50,.35),transparent 70%)}
+.cvr svg.lt{position:relative;width:100%;max-width:350px;height:auto;filter:drop-shadow(0 1px 0 rgba(120,20,50,.25))}
+.cvr p{position:relative;font:600 29px/1.18 "Exo 2",Onest,sans-serif;color:rgba(236,226,232,.93);text-align:center;letter-spacing:.005em;text-shadow:0 1px 0 rgba(120,20,50,.25);filter:url(#knit)}
+.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,0) 35%)}
+.hero .hb{position:absolute;top:calc(var(--top) + 6px);left:14px;right:14px;display:flex;justify-content:space-between;z-index:2}
+.gb{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.28);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.45);display:grid;place-items:center;color:#1f1f22}
+.gb svg{width:22px;height:22px}
+.hero .cov{position:absolute;right:14px;bottom:48px;z-index:2;font-size:12px;color:#fff;background:rgba(0,0,0,.25);backdrop-filter:blur(10px);border-radius:10px;padding:6px 10px}
+.pbody{margin-top:-40px;position:relative;z-index:2;padding:0 10px 28px}
+.pcard{background:var(--glass);border:1px solid var(--glass-b);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:22px;padding:16px;margin-top:10px}
+.pcard.first{border-radius:28px;padding-top:0;margin-top:0}
+.ava{width:76px;height:76px;border-radius:50%;padding:3px;background:linear-gradient(135deg,#C6F36B,#2BC4B3);margin-top:-38px;position:relative}
+.ava div{width:100%;height:100%;border-radius:50%;background:linear-gradient(160deg,#2F4B57,#1B2B33);border:3px solid #fff;color:#fff;display:grid;place-items:center;font-weight:600;font-size:22px}
+.app[data-theme=dark] .ava div{border-color:#2a2a2d}
+.lvl{display:flex;align-items:center;gap:10px;justify-content:flex-end;font-size:13px;color:var(--mut);margin-top:-26px;padding-left:90px}
+.lvl .bar{width:110px;height:12px;border-radius:99px;background:rgba(0,0,0,.08);overflow:hidden}
+.app[data-theme=dark] .lvl .bar{background:rgba(255,255,255,.1)}
+.lvl .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#C6F36B,#5FE0B5 55%,#2BC4B3)}
+.pname{font-size:22px;font-weight:600;line-height:1.2;margin-top:14px}
+.pgoal{font-size:14px;color:var(--mut);margin-top:6px}
+.pstats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px}
+.pstats b{display:block;font-size:17px;font-weight:600}
+.pstats small{font-size:13px;color:var(--mut)}
+.ptitle{font-size:17px;font-weight:500}
+.psub{font-size:12.5px;color:var(--mut);margin-top:4px}
+.trk{display:flex;gap:12px;align-items:center}
+.trk .l{flex:1;min-width:0}
+.trk svg.rad{width:128px;height:128px}
+.sbtn{display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,.06);border-radius:10px;padding:7px 11px;font-size:12px;font-weight:500;margin-top:14px}
+.app[data-theme=dark] .sbtn{background:rgba(255,255,255,.08)}
+.sbtn svg{width:14px;height:14px}
+.legend{display:flex;flex-direction:column;gap:5px;margin-top:10px}
+.legend button{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--mut);width:100%}
+.legend i{width:8px;height:8px;border-radius:3px;flex:none}
+.legend b{margin-left:auto;color:var(--ink);font-weight:600}
+.next{display:flex;align-items:center;gap:12px;width:100%;text-align:left}
+.next .l{flex:1}
+.next svg{width:22px;height:22px}
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.rt{background:var(--tile);border-radius:18px;padding:12px;text-align:left;display:flex;flex-direction:column;min-height:150px}
+.rt .h{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;font-size:13px;font-weight:600;line-height:1.3;padding-bottom:9px;border-bottom:1px solid var(--line)}
+.rt .h svg{width:16px;height:16px;margin-top:1px}
+.rt p{font-size:12.5px;color:var(--mut);line-height:1.4;margin-top:9px;flex:1}
+.rt .tag{align-self:flex-start;margin-top:8px}
+.pfoot{text-align:center;font-size:12px;color:var(--mut);padding:18px 0 6px}
+
+/* ================= Sheet / toast ================= */
+.ov{position:absolute;inset:0;background:var(--ov);z-index:40;opacity:0;pointer-events:none;transition:opacity .25s}
+.ov.on{opacity:1;pointer-events:auto}
+.sh{position:absolute;left:0;right:0;bottom:0;z-index:41;background:var(--sheet);color:var(--ink);border-radius:28px 28px 0 0;max-height:88%;display:flex;flex-direction:column;transform:translateY(105%);transition:transform .32s cubic-bezier(.2,.8,.2,1)}
+@media(min-width:520px){.sh{border-radius:28px 28px 52px 52px}}
+.sh.on{transform:none}
+.sh .gr{width:36px;height:5px;border-radius:5px;background:var(--line);margin:8px auto 0;flex:none}
+.sh .shh{display:flex;align-items:center;gap:12px;padding:12px 16px 4px;flex:none}
+.sh .shh h2{flex:1;font-size:19px;font-weight:600}
+.sh .x{width:32px;height:32px;border-radius:50%;background:var(--w);display:grid;place-items:center;color:var(--mut)}
+.sh .x svg{width:16px;height:16px}
+.sh .shb{overflow-y:auto;padding:6px 16px calc(22px + env(safe-area-inset-bottom,0px));scrollbar-width:none}
+@media(min-width:520px){.sh .shb{padding-bottom:34px}}
+.sh .lead{color:var(--mut);font-size:14px}
+.li{display:flex;align-items:center;gap:14px;width:100%;padding:0}
+.li .ri{width:28px;color:var(--acc);display:grid;place-items:center}
+.li .ri svg{width:24px;height:24px}
+.li .rb{flex:1;display:flex;align-items:center;gap:10px;padding:13px 0;min-width:0}
+.li+.li .rb{border-top:1px solid var(--line)}
+.li .rt2{flex:1;min-width:0}.li .rt2 b{display:block;font-weight:400;font-size:16px}.li .rt2 small{font-size:13px;color:var(--mut)}
+.li .chev{width:18px;height:18px;color:var(--mut)}
+.sec{margin-top:18px}.sec>h3{font-size:13px;color:var(--mut);font-weight:500;margin-bottom:4px}
+.seg{display:flex;background:var(--w);border-radius:14px;padding:3px;margin-top:6px}
+.seg button{flex:1;text-align:center;padding:9px 6px;border-radius:11px;font-size:14px;font-weight:500;color:var(--mut)}
+.seg .on{background:var(--surf);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.app[data-theme=dark] .seg .on{background:#3d3d41}
+.sw{width:46px;height:28px;border-radius:99px;background:#D0D3D8;position:relative;flex:none;transition:background .2s}
+.app[data-theme=dark] .sw{background:#4a4b50}
+.sw:after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s}
+.sw.on{background:var(--acc)}.sw.on:after{transform:translateX(18px)}
+.srch{display:flex;align-items:center;gap:8px;background:var(--w);border-radius:14px;padding:2px 12px;margin-top:4px}
+.srch svg{width:18px;height:18px;color:var(--mut)}
+.srch input{flex:1;outline:0;padding:11px 0;font-size:16px}
+.scan{height:260px;border-radius:22px;background:#111;position:relative;overflow:hidden;margin-top:6px}
+.scan:before{content:"";position:absolute;inset:50px 70px;border:3px solid #2BB5AB;border-radius:18px}
+.scan:after{content:"";position:absolute;left:74px;right:74px;top:50%;height:2px;background:#2BB5AB;box-shadow:0 0 12px #2BB5AB;animation:scan 1.8s ease-in-out infinite}
+@keyframes scan{0%,100%{transform:translateY(-70px)}50%{transform:translateY(70px)}}
+.toast{position:absolute;left:14px;right:14px;bottom:110px;z-index:50;background:#2B2C30;color:#fff;border-radius:16px;padding:12px 14px;font-size:14px;display:flex;gap:10px;align-items:center;transform:translateY(16px);opacity:0;transition:.25s;pointer-events:none}
+.toast.on{transform:none;opacity:1}
+.toast svg{width:18px;height:18px;color:#7FE0C4}
+.mbar{display:flex;align-items:flex-end;justify-content:space-between;gap:5px;height:60px;margin-top:10px}
+.mbar i{display:block;flex:0 0 12px;border-radius:99px;background:var(--acc);opacity:.4}
+.mbar i:last-child{opacity:1}
+.bul{list-style:none}.bul li{position:relative;padding:5px 0 5px 16px;font-size:14px}.bul li:before{content:"";position:absolute;left:2px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--acc)}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<script>
+/* ================= Icons ================= */
+const I={
+user:'<circle cx="12" cy="8" r="3.6"/><path d="M5 20c1.2-3.4 3.9-5 7-5s5.8 1.6 7 5z"/>',
+search:'<circle cx="11" cy="11" r="6.3"/><path d="M15.8 15.8L20 20"/>',
+bell:'<path d="M6.5 16.5V11a5.5 5.5 0 1111 0v5.5l1.5 1.5h-14z"/><path d="M10 20.5h4"/>',
+down:'<path d="M7 10l5 5 5-5"/>',chev:'<path d="M9.5 6l6 6-6 6"/>',back:'<path d="M19.5 12H5"/><path d="M11 5.5L4.5 12l6.5 6.5"/>',
+close:'<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+menu:'<path d="M4.5 7h15M4.5 12h15M4.5 17h15"/>',
+scan:'<path d="M4 8V5.5A1.5 1.5 0 015.5 4H8M16 4h2.5A1.5 1.5 0 0120 5.5V8M20 16v2.5a1.5 1.5 0 01-1.5 1.5H16M8 20H5.5A1.5 1.5 0 014 18.5V16"/><rect x="7.5" y="7.5" width="3.5" height="3.5" rx=".6"/><rect x="13" y="7.5" width="3.5" height="3.5" rx=".6"/><rect x="7.5" y="13" width="3.5" height="3.5" rx=".6"/><path d="M13 13h1.5v1.5H13zM15.5 15.5h1v1h-1z"/>',
+clip:'<path d="M19.5 11.5l-7.8 7.8a4.8 4.8 0 01-6.8-6.8l8.2-8.2a3.2 3.2 0 014.5 4.5l-8 8a1.6 1.6 0 01-2.3-2.3l7.3-7.3"/>',
+send:'<path d="M12 18.5V5.5"/><path d="M6.5 11l5.5-5.5 5.5 5.5"/>',
+spark:'<path d="M12 3.5l1.8 4.9 4.9 1.8-4.9 1.8L12 16.9l-1.8-4.9-4.9-1.8 4.9-1.8z"/><path d="M18 15.5l.6 1.6 1.6.6-1.6.6-.6 1.6-.6-1.6-1.6-.6 1.6-.6z"/>',
+gear:'<circle cx="12" cy="12" r="2.8"/><path d="M19.2 13.4a7.4 7.4 0 000-2.8l1.9-1.5-1.9-3.3-2.3.9a7.4 7.4 0 00-2.4-1.4L14.2 3h-3.8l-.4 2.3a7.4 7.4 0 00-2.4 1.4l-2.3-.9-1.9 3.3 1.9 1.5a7.4 7.4 0 000 2.8l-1.9 1.5 1.9 3.3 2.3-.9a7.4 7.4 0 002.4 1.4l.4 2.3h3.8l.4-2.3a7.4 7.4 0 002.4-1.4l2.3.9 1.9-3.3z"/>',
+logout:'<path d="M10 4.5H6a1.5 1.5 0 00-1.5 1.5v12A1.5 1.5 0 006 19.5h4"/><path d="M14.5 8l4 4-4 4M18.5 12H9.5"/>',
+download:'<path d="M12 4.5v10M7.5 10.5l4.5 4.5 4.5-4.5M5 19.5h14"/>',
+chat:'<path d="M4.5 5.5h15v10.5h-9l-4.5 3.5V16h-1.5z"/>',
+plus:'<path d="M12 5v14M5 12h14"/>',history:'<path d="M4.5 12a7.5 7.5 0 102.2-5.3"/><path d="M4.5 4.5v3.5H8M12 8v4.5l3 2"/>',
+headset:'<path d="M5 14v-2a7 7 0 0114 0v2"/><rect x="4" y="13.5" width="3.5" height="5" rx="1.2"/><rect x="16.5" y="13.5" width="3.5" height="5" rx="1.2"/><path d="M18 18.5c0 1.4-1.6 2-4 2"/>',
+grid:'<rect x="4" y="4" width="7" height="7" rx="1.8"/><rect x="13" y="4" width="7" height="7" rx="1.8"/><rect x="4" y="13" width="7" height="7" rx="1.8"/><rect x="13" y="13" width="7" height="7" rx="1.8"/>',
+store:'<path d="M4.5 9.5L6 4.5h12l1.5 5"/><path d="M4.5 9.5a2.5 2.5 0 005 0 2.5 2.5 0 005 0 2.5 2.5 0 005 0"/><path d="M5.5 12v7.5h13V12"/>',
+copy:'<rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V6a1.5 1.5 0 00-1.5-1.5h-8A1.5 1.5 0 005 6v8a1.5 1.5 0 001.5 1.5H8"/>',
+alert:'<path d="M12 4.5l8.5 15h-17z"/><path d="M12 10v4M12 16.8h.01"/>',
+trend:'<path d="M4 16l5-5 4 4 7-7"/><path d="M15 8h5v5"/>',
+doc:'<path d="M7 3.5h7.5L18 7v13.5H7z"/><path d="M9.5 11h6M9.5 14.5h6M9.5 18h3"/>',
+image:'<rect x="4" y="5" width="16" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M5 17l4.5-4 3.5 3 2.5-2 3.5 3"/>',
+moon:'<path d="M19 14.5A7.5 7.5 0 019.5 5a7.5 7.5 0 109.5 9.5z"/>',
+db:'<ellipse cx="12" cy="6" rx="6.5" ry="2.6"/><path d="M5.5 6v12c0 1.4 2.9 2.6 6.5 2.6s6.5-1.2 6.5-2.6V6M5.5 12c0 1.4 2.9 2.6 6.5 2.6s6.5-1.2 6.5-2.6"/>',
+refresh:'<path d="M19.5 11a7.5 7.5 0 10-2.2 5.3"/><path d="M19.5 4.5V11H13"/>',
+loc:'<path d="M12 20.5s-6-5.3-6-10.5a6 6 0 1112 0c0 5.2-6 10.5-6 10.5z"/><circle cx="12" cy="10" r="2.2"/>'
+};
+const ic=(n,c='')=>`<svg class="${c}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n]||''}</svg>`;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const rub=(n,k=0)=>n.toLocaleString('ru-RU',{minimumFractionDigits:k,maximumFractionDigits:k})+' ₽';
+const nf=n=>Math.round(n).toLocaleString('ru-RU');
+
+/* ================= Data ================= */
+const ORG={short:'ИП Епифан Танакаси',person:'Епифан Танакаси',ini:'ЕТ',kind:'Пекарня-кофейня',addr:'Москва, ул. Ленина, 12'};
+const ORGS=[['ИП Епифан Танакаси','Пекарня-кофейня · ••1234'],['ООО «Хлебный двор»','Производство · ••5520']];
+const METRICS=[
+ {id:'revenue',name:'Доход',v:91,d:8,c:'#0E8C93',hist:[84,85,86,88,89,91],q:'Выручка растёт третий месяц подряд',ch:['Выручка +18% за квартал','Средний чек +8%','74% оплат — картой'],intent:'growth'},
+ {id:'clients',name:'Клиенты',v:68,d:-6,c:'#2BC4B3',hist:[80,79,79,77,74,68],q:'Повторные покупки снизились на 14%',ch:['Доля постоянных клиентов упала с 42% до 36%','Интервал между покупками вырос на 5 дней','Новых клиентов +9%'],intent:'loyalty'},
+ {id:'growth',name:'Рост',v:84,d:4,c:'#35A0F0',hist:[76,77,78,80,82,84],q:'Темп роста сохраняется',ch:['Новых клиентов +9% за месяц','Появился канал продаж — маркетплейс','Точка загружена на 92%'],intent:'plan'},
+ {id:'stability',name:'Стабильность',v:79,d:2,c:'#6E55E0',hist:[75,76,76,77,77,79],q:'Продажи предсказуемы',ch:['Разброс выручки по неделям сократился','Кассовых разрывов за квартал не было'],intent:'report'},
+ {id:'efficiency',name:'Эффективность',v:71,d:1,c:'#4CC28F',hist:[74,73,73,72,70,71],q:'Расходы растут быстрее выручки',ch:['Закупки +24%','38 из 41 расхода — с личных карт'],intent:'card'}
+];
+const SCORE=82;
+const RECS=[
+ {t:'Вернуть клиентов',p:'1 240 клиентов не покупали 30+ дней. Рассылка с предложением вернёт 6–9%.',tag:'Риск',tc:'r',i:'loyalty'},
+ {t:'Бизнес-карта для закупок',p:'38 из 41 расхода прошли с личных карт. Разделите траты и задайте лимиты.',tag:'Внимание',tc:'o',i:'card'},
+ {t:'Кредит до 2,5 млн ₽',p:'Выручка растёт 3 месяца подряд — можно расширяться без риска для оборота.',tag:'Возможность',i:'credit'},
+ {t:'Копилка под 14%',p:'На счёте лежит 15 млн ₽. Доход на остаток — до 175 000 ₽ в месяц.',tag:'Выгода',i:'piggy'},
+ {t:'Оплата по QR дешевле',p:'Комиссия СБП 0,4% против 1,5% по картам. Экономия ~6 200 ₽ в месяц.',tag:'Выгода',i:'qrpay'},
+ {t:'Карточка товара',p:'Опишем товар для маркетплейса за минуту — по фото и цене.',tag:'Сервис',i:'product'}
+];
+const LSTEPS=[['register','Зарегистрировать бизнес',1],['account','Открыть расчётный счёт',1],['payments','Подключить приём платежей',1],['kassa','Подключить онлайн-кассу',1],['location','Выбрать локацию'],['audience','Определить аудиторию'],['acquisition','Запустить привлечение клиентов'],['firstsale','Получить первую продажу']];
+const LOCS=[['Район Северный',91,'от 120 000 ₽/мес','Спрос высокий · конкуренция средняя'],['Район Центральный',84,'от 180 000 ₽/мес','Спрос высокий · конкуренция высокая'],['Район Парковый',76,'от 80 000 ₽/мес','Спрос средний · конкуренция низкая']];
+
+/* ================= State ================= */
+const KEY='ob-chatbank-v1';
+const st0={theme:'light',view:'home',stage:'active',bal:15000000,t:{tax:2,bill:104,sign:17},stripX:0,piggy:0,pig:0,cardOn:0,msgs:[],seq:1,ls:{},notif:{push:1,mail:0},cover:null};
+let st;try{st={...JSON.parse(JSON.stringify(st0)),...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch(e){st=JSON.parse(JSON.stringify(st0))}
+const save=()=>{try{const c={...st,cover:null};localStorage.setItem(KEY,JSON.stringify(c))}catch(e){}};
+const stepDone=([id,,d])=>d||st.ls[id];
+
+/* ================= Chat engine ================= */
+const BOT=(tx,w,s={})=>({b:1,tx,w,s});
+const INTENTS={
+ tax:{re:/налог|усн|взнос/i,r:()=>BOT(`Нашёл <b>2 налоговых платежа</b> со сроком до 28 ноября. Суммы рассчитаны по книге учёта.`,'list',{k:'tax',sel:[1,1]}),sug:['Реквизиты','Выписка']},
+ bill:{re:/сч[её]т[аы]? к оплат|оплатит?е? сч[её]т|счета/i,r:()=>BOT(`К оплате <b>${st.t.bill} ${pl(st.t.bill,'счёт','счёта','счетов')}</b> от поставщиков. Вот ближайшие по сроку:`,'list',{k:'bill',sel:[1,1,0]}),sug:['На подпись','Платёж по реквизитам']},
+ sign:{re:/подпис/i,r:()=>BOT(`На подписи <b>${st.t.sign} ${pl(st.t.sign,'документ','документа','документов')}</b>. Проверил — расхождений с договорами нет.`,'list',{k:'sign'}),sug:['Счета к оплате','Выписка']},
+ req:{re:/реквизит/i,r:()=>BOT('Реквизиты расчётного счёта:','req'),sug:['Получить оплату по QR','Выписка']},
+ piggy:{re:/копилк|остат|свободн|депоз|процент на/i,r:()=>BOT(st.piggy?`Копилка уже открыта: на ней <b>${rub(st.pig)}</b>, доход за ноябрь — ${rub(Math.round(st.pig*.14/12))}.`:'Копилка приносит доход на остаток, а деньги можно вернуть на счёт в любой момент.','piggy',{a:3000000}),sug:['Вывести средства','Выписка']},
+ statement:{re:/выписк/i,r:()=>BOT('Сформирую выписку по счёту ••1234.','statement',{p:0,f:0}),sug:['Финансовая отчётность','Реквизиты']},
+ limits:{re:/лимит/i,r:()=>BOT('Текущие лимиты по бизнес-карте ••7781. Можно изменить прямо здесь.','limits',{c:100000,p:500000}),sug:['Бизнес-карта','Выписка']},
+ withdraw:{re:/вывест|вывод|себе на карт|перевести себе/i,r:()=>BOT('Выведу деньги на вашу личную карту. Для ИП это бесплатно до 1 млн ₽ в месяц.','withdraw',{a:300000}),sug:['Копилка','Налоги']},
+ card:{re:/бизнес-карт|карт[ау] для|раздел.*расход|закупк/i,r:()=>BOT('38 из 41 расхода в октябре прошли с личных карт. Бизнес-карта отделит траты бизнеса и покажет их в аналитике.','card',{l:[1,1,0]}),sug:['Лимиты','Как дела у бизнеса?']},
+ credit:{re:/кредит|заня|финансир|развити/i,r:()=>BOT('Выручка растёт третий месяц подряд — без риска для оборота доступно <b>до 2,5 млн ₽</b>. Залог не нужен.','credit',{a:1500000,t:1}),sug:['План роста выручки','Копилка']},
+ plan:{re:/план|рост выручк|увелич.*выручк/i,r:()=>BOT('Выручка за октябрь — <b>1,72 млн ₽</b>, +5% к сентябрю. Вот три рычага, которые дадут больше всего:','plan'),sug:['Лояльность клиентов','Кредит на развитие']},
+ report:{re:/отч[её]т|финанс.*отч|прибыл/i,r:()=>BOT('Финансовые итоги за октябрь 2026:','report'),sug:['План роста выручки','Выписка']},
+ loyalty:{re:/лояльн|верн.*клиент|клиент|рассылк/i,r:()=>BOT('Повторные покупки снизились на <b>14%</b>. 1 240 клиентов не покупали больше 30 дней — предлагаю вернуть их рассылкой.','loyalty',{o:0,c:0}),sug:['План роста выручки','Карточка товара']},
+ product:{re:/карточк.*товар|маркетплейс|описани/i,r:()=>BOT('Подготовил карточку товара по вашему каталогу. Можно поправить и опубликовать.','product',{v:0}),sug:['Лояльность клиентов','План роста выручки']},
+ pulse:{re:/как дела|здоров|пульс|показател|бизнес в цел/i,r:()=>BOT(st.stage=='new'?'Пульс бизнеса появится после первых продаж. Пока покажу, сколько шагов осталось до старта.':`Здоровье бизнеса — <b>${SCORE} из 100</b>, +5 за неделю. Главное сейчас — снижаются повторные покупки.`,'pulse'),sug:['Лояльность клиентов','Финансовая отчётность']},
+ support:{re:/поддерж|оператор|специалист|человек|менеджер|жалоб/i,r:()=>BOT('Подключаю специалиста поддержки — он видит этот диалог, повторять ничего не нужно.','support'),sug:['Реквизиты','Выписка']},
+ qrpay:{re:/qr|сбп|принять оплат|получить оплат/i,r:()=>BOT('QR-код для оплаты по СБП. Комиссия — 0,4%, деньги приходят сразу.','qr',{a:0}),sug:['Реквизиты','Выписка']},
+ pay:{re:/плат[её]ж|перев[её]с?т|оплатить по|отправ.*деньг/i,r:()=>BOT('Заполню платёж. Можно прикрепить счёт — распознаю реквизиты сам.','pay',{rcp:'ООО «Мука и Ко»',inn:'7708123456',sum:'86 400',dst:'Оплата по счёту №318 от 01.11.2026'}),sug:['Счета к оплате','На подпись']},
+ account:{re:/баланс|сколько денег|сч[её]т ••|остаток по сч/i,r:()=>BOT('Расчётный счёт ••1234:','account'),sug:['Выписка','Реквизиты']},
+ salary:{re:/зарплат/i,r:()=>BOT('Зарплатный проект: выплаты сотрудникам в пару кликов, без комиссии для 6 сотрудников.','salary'),sug:['Налоги','Выписка']},
+ acq:{re:/эквайринг|терминал/i,r:()=>BOT('Эквайринг подключён: за октябрь <b>1 276 500 ₽</b> по картам, комиссия 1,5%. Можно добавить терминал или перевести часть оплат на QR — комиссия 0,4%.','acq'),sug:['Получить оплату по QR','Онлайн-касса']},
+ kassa:{re:/касс/i,r:()=>BOT('Онлайн-касса на связи, чеки уходят в ОФД. Фискальный накопитель заменить через 74 дня — напомню заранее.','kassa'),sug:['Эквайринг','Карточка товара']},
+ check:{re:/контрагент|проверить компан|надёжн/i,r:()=>BOT('Проверил поставщика по ИНН 7708123456:','check'),sug:['Платёж по реквизитам','Счета к оплате']},
+ launch:{re:/запуск|локац|аудитор|первая продаж|первые клиент/i,r:a=>BOT(launchText(a),'launch',{step:a||nextStep()}),sug:['Как дела у бизнеса?']}
+};
+const pl=(n,a,b,c)=>{const m=n%10,h=n%100;return m==1&&h!=11?a:m>=2&&m<=4&&(h<10||h>=20)?b:c};
+const nextStep=()=>(LSTEPS.find(s=>!stepDone(s))||[])[0];
+const launchText=a=>({location:'Подобрал три района под пекарню-кофейню — по спросу, конкуренции и аренде.',audience:'Собрал портрет ваших будущих клиентов по выбранному району.',acquisition:'Вот каналы, которые быстрее всего приведут первых клиентов.',firstsale:'Шаг закроется сам, как только пройдёт первая оплата через эквайринг или СБП.'}[a||nextStep()]||'Все шаги запуска пройдены!');
+const CHIPMAP={'Платёж по реквизитам':'pay','Вопрос по платежу':'support','Вопрос по тарифу':'support','Баланс по счёту':'account','Копилка':'piggy','Бизнес-карта':'card','Счета к оплате':'bill','Подобрать локацию':'launch','Свободные деньги под процент':'piggy','Онлайн-касса':'kassa','Проверить контрагента':'check','Зарплатный проект':'salary','Эквайринг':'acq','Следующий шаг запуска':'launch'};
+function detect(q){if(CHIPMAP[q])return CHIPMAP[q];for(const [k,v] of Object.entries(INTENTS))if(v.re.test(q))return k;return null}
+let lastSug=null;
+function say(q,intent,arg){
+ st.msgs.push({id:st.seq++,tx:esc(q)});save();drawFeed(true);
+ const k=intent||detect(q);
+ showTyping();
+ setTimeout(()=>{hideTyping();
+  if(!k){push(BOT('Могу помочь с платежами, налогами, выписками и счетами, а ещё — подсказать, как растёт бизнес. Выберите, с чего начать:'));lastSug=['Налоги','Как дела у бизнеса?','Выписка','Поддержка']}
+  else{push(INTENTS[k].r(arg));lastSug=INTENTS[k].sug}
+  drawFeed(true);
+  if(k=='support')setTimeout(()=>{push({b:1,mgr:1,tx:'Здравствуйте, Епифан! Меня зовут Анна, я специалист поддержки. Вижу ваш диалог — чем помочь?'});lastSug=['Вопрос по платежу','Вопрос по тарифу'];drawFeed(true)},1600)
+ },650)}
+function push(m){m.id=st.seq++;st.msgs.push(m);save()}
+function follow(tx,sug){push(BOT(tx));if(sug)lastSug=sug;drawFeed(true)}
+
+/* ================= Widgets ================= */
+const LISTS={
+ tax:{items:[['УСН за III квартал','до 28 ноября',48900],['Страховые взносы 1%','до 28 ноября',12400]],verb:'Оплатить',done:s=>`Оплачено ${rub(s)} · квитанции в выписке`,after:n=>{st.t.tax=0;st.bal-=61300;follow('Налоги оплачены. Следующий срок — 28 января, напомню заранее.',['Выписка','Реквизиты'])}},
+ bill:{items:[['ООО «Мука и Ко»','Счёт №318 · до 8 ноября',86400],['ИП Смирнова','Аренда за декабрь · до 10 ноября',120000],['ООО «Молочный край»','Счёт №77 · до 12 ноября',34750]],verb:'Оплатить',more:()=>st.t.bill-3,done:s=>`Оплачено ${rub(s)}`,after:(n,s)=>{st.t.bill=Math.max(0,st.t.bill-n);st.bal-=s;follow(`Готово. Осталось ${st.t.bill} ${pl(st.t.bill,'счёт','счёта','счетов')} — самые срочные уже оплачены.`,['На подпись','Выписка'])}},
+ sign:{items:[['Платёжное поручение №412','ООО «Кофе Трейд»',38600],['Договор поставки №17','ООО «Мука и Ко»',null],['Акт сверки за октябрь','ИП Смирнова',null]],verb:'Подписать все',all:1,more:()=>st.t.sign-3,done:()=>'Документы подписаны и отправлены',after:()=>{st.t.sign=0;follow('Все документы подписаны. Платежи исполним сегодня.',['Счета к оплате','Выписка'])}}
+};
+const W={
+ list:(m)=>{const L=LISTS[m.s.k],s=m.s;const sel=L.all?L.items.map(()=>1):s.sel;const sum=L.items.reduce((a,x,i)=>a+(sel[i]&&x[2]?x[2]:0),0),cnt=sel.filter(Boolean).length;
+  if(s.done)return `<div class="wg"><div class="done">${ic('check')}${L.done(s.sum)}</div></div>`;
+  return `<div class="wg">${L.items.map(([n,d,v],i)=>`<button class="it" ${L.all?'':`data-a="wa" data-id="${m.id}" data-v="tog:${i}"`}>${L.all?'':`<span class="cb ${sel[i]?'on':''}">${ic('check')}</span>`}<span class="nn"><b>${n}</b><small>${d}</small></span>${v?`<span class="sm">${rub(v)}</span>`:''}</button>`).join('')}
+  ${L.more&&L.more()>0?`<div class="kv"><span>и ещё ${L.more()}</span><b></b></div>`:''}
+  ${s.cf?`<div class="kv" style="margin-top:6px"><span>Списать со счёта ••1234</span><b>${rub(sum)}</b></div><div class="btns"><button class="btn gh" data-a="wa" data-id="${m.id}" data-v="cancel">Отмена</button><button class="btn" data-a="wa" data-id="${m.id}" data-v="ok">Подтвердить</button></div>`
+  :`<button class="btn" ${cnt?'':'disabled style="opacity:.4"'} data-a="wa" data-id="${m.id}" data-v="${L.all?'ok':'cf'}">${L.all?`${L.verb} ${st.t.sign}`:`${L.verb} ${sum?rub(sum):''}`}</button>`}</div>`},
+ req:()=>`<div class="wg">${[['Получатель',ORG.short],['ИНН','771234567890'],['Счёт','40802 810 3 3800 0001234'],['Банк','Отраслевой банк'],['БИК','044525225'],['Корр. счёт','30101 810 4 0000 0000225']].map(([k,v])=>`<div class="kv"><span>${k}</span><b>${v}</b></div>`).join('')}<div class="btns"><button class="btn gh" data-a="toast" data-v="Реквизиты скопированы">${ic('copy')}Копировать</button><button class="btn" data-a="toast" data-v="Ссылка на реквизиты готова">Поделиться</button></div></div>`,
+ piggy:m=>{const s=m.s,inc=Math.round(s.a*.14/12);if(st.piggy&&!s.open)return `<div class="wg"><div class="kv"><span>Ставка</span><b>14% годовых</b></div><div class="kv"><span>На копилке</span><b>${rub(st.pig)}</b></div><button class="btn gh" data-a="say" data-v="Вывести средства">Вернуть на счёт</button></div>`;
+  if(s.done)return `<div class="wg"><div class="done">${ic('check')}Копилка открыта, переведено ${rub(s.a)}</div></div>`;
+  return `<div class="wg"><div class="wh"><span>Ставка</span><span class="tag">14% годовых</span></div><div class="wbig" id="pa${m.id}">${rub(s.a)}</div><input class="rng" type="range" min="100000" max="${st.bal}" step="100000" value="${s.a}" data-in="pig" data-id="${m.id}" aria-label="Сумма"><div class="kv"><span>Доход в месяц</span><b id="pi${m.id}">≈ ${rub(inc)}</b></div><div class="kv"><span>Вернуть на счёт</span><b>в любой момент</b></div><button class="btn" data-a="wa" data-id="${m.id}" data-v="ok">Открыть копилку</button></div>`},
+ statement:m=>{const s=m.s;if(s.done)return `<div class="wg"><div class="done">${ic('check')}Выписка за ${['октябрь','III квартал','2026 год'][s.p]} отправлена на почту</div></div>`;
+  return `<div class="wg"><div class="lbl" style="margin-top:0">Период</div><div class="wchips">${['Октябрь','III квартал','2026 год'].map((x,i)=>`<button class="chip ${s.p==i?'on':''}" data-a="wa" data-id="${m.id}" data-v="p:${i}">${x}</button>`).join('')}</div><div class="lbl">Формат</div><div class="wchips">${['PDF','1С','Excel'].map((x,i)=>`<button class="chip ${s.f==i?'on':''}" data-a="wa" data-id="${m.id}" data-v="f:${i}">${x}</button>`).join('')}</div><div class="btns"><button class="btn gh" data-a="toast" data-v="Выписка скачана">${ic('download')}Скачать</button><button class="btn" data-a="wa" data-id="${m.id}" data-v="ok">На почту</button></div></div>`},
+ limits:m=>{const s=m.s;if(s.done)return `<div class="wg"><div class="done">${ic('check')}Лимиты сохранены</div></div>`;
+  return `<div class="wg"><div class="kv"><span>Снятие наличных в месяц</span><b id="lc${m.id}">${rub(s.c)}</b></div><input class="rng" type="range" min="0" max="500000" step="10000" value="${s.c}" data-in="lc" data-id="${m.id}" aria-label="Снятие наличных"><div class="kv" style="margin-top:8px"><span>Покупки в месяц</span><b id="lp${m.id}">${rub(s.p)}</b></div><input class="rng" type="range" min="0" max="2000000" step="50000" value="${s.p}" data-in="lp" data-id="${m.id}" aria-label="Покупки"><button class="btn" data-a="wa" data-id="${m.id}" data-v="ok">Сохранить</button></div>`},
+ withdraw:m=>{const s=m.s;if(s.done)return `<div class="wg"><div class="done">${ic('check')}${rub(s.a)} отправлено на карту ••4821</div></div>`;
+  return `<div class="wg"><div class="wh"><span>Сумма</span><span>Доступно ${rub(st.bal)}</span></div><div class="wbig">${rub(s.a)}</div><div class="wchips">${[100000,300000,500000,1000000].map(v=>`<button class="chip ${s.a==v?'on':''}" data-a="wa" data-id="${m.id}" data-v="a:${v}">${nf(v/1000)} тыс.</button>`).join('')}</div><div class="kv" style="margin-top:8px"><span>Куда</span><b>Личная карта ••4821</b></div><div class="kv"><span>Комиссия</span><b>0 ₽</b></div><button class="btn" data-a="wa" data-id="${m.id}" data-v="ok">Вывести ${rub(s.a)}</button></div>`},
+ card:m=>{const s=m.s;if(s.done||st.cardOn)return `<div class="wg"><div class="done">${ic('check')}Бизнес-карта ••7781 выпущена, лимиты настроены</div></div>`;
+  const L=[['Закупки','до 250 000 ₽'],['Хозтовары','до 30 000 ₽'],['Такси и доставка','до 15 000 ₽']];
+  return `<div class="wg"><div class="lbl" style="margin-top:0">Категории и лимиты</div>${L.map(([n,v],i)=>`<button class="it" data-a="wa" data-id="${m.id}" data-v="l:${i}"><span class="nn"><b>${n}</b><small>${v} в месяц</small></span><span class="sw ${s.l[i]?'on':''}"></span></button>`).join('')}<button class="btn" data-a="wa" data-id="${m.id}" data-v="ok">Выпустить карту</button><div class="kv"><span>Бесплатно · виртуальная сразу</span><b></b></div></div>`},
+ credit:m=>{const s=m.s;if(s.done)return `<div class="wg"><div class="done">${ic('check')}Заявка на ${rub(s.a)} отправлена — ответ в течение дня</div></div>`;
+  const mm=[12,24,36][s.t],r=.169/12,pay=s.a*r/(1-Math.pow(1+r,-mm));
+  return `<div class="wg"><div class="wh"><span>Сумма</span><span>от 16,9% годовых</span></div><div class="wbig" id="ca${m.id}">${rub(s.a)}</div><input class="rng" type="range" min="300000" max="2500000" step="100000" value="${s.a}" data-in="cr" data-id="${m.id}" aria-label="Сумма кредита"><div class="lbl">Срок</div><div class="wchips">${['12 мес.','24 мес.','36 мес.'].map((x,i)=>`<button class="chip ${s.t==i?'on':''}" data-a="wa" data-id="${m.id}" data-v="t:${i}">${x}</button>`).join('')}</div><div class="kv" style="margin-top:8px"><span>Платёж в месяц</span><b id="cp${m.id}">≈ ${rub(Math.round(pay))}</b></div><div class="kv"><span>Доля от выручки</span><b id="cs${m.id}">${(pay/1725000*100).toFixed(1).replace('.',',')}%</b></div><button class="btn" data-a="wa" data-id="${m.id}" data-v="ok">Отправить заявку</button></div>`},
+ plan:()=>{const v=[1450,1500,1520,1560,1640,1725],mx=Math.max(...v),mo=['май','июн','июл','авг','сен','окт'];
+  return `<div class="wg"><div class="wh"><span>Выручка, тыс. ₽</span><span class="tag">+18% за квартал</span></div><div class="bars">${v.map((x,i)=>`<div><i style="height:${30+70*(x-1400)/(mx-1400)}%"></i><small>${mo[i]}</small></div>`).join('')}</div></div>
+  <div class="wg">${[['Вернуть постоянных клиентов','1 240 человек не покупали 30+ дней','+74 тыс.','Лояльность клиентов'],['Поднять средний чек','Комбо «кофе + выпечка» утром','+52 тыс.','Карточка товара'],['Открыть вторую точку','Основная точка загружена на 92%','+600 тыс.','Кредит на развитие']].map(([b,s,e,q],i)=>`<button class="lev" data-a="say" data-v="${q}"><span class="n">${i+1}</span><span><b>${b}</b><small>${s}</small></span><span class="e">${e}</span></button>`).join('')}</div>`},
+ report:()=>`<div class="wg">${[['Выручка','1 725 000 ₽','+5%'],['Расходы','1 610 000 ₽','+3%'],['Чистая прибыль','115 000 ₽','+38%'],['Налоговая нагрузка','3,6%','']].map(([k,v,d])=>`<div class="kv"><span>${k}</span><b>${v}${d?` <span style="color:var(--acc)">${d}</span>`:''}</b></div>`).join('')}<div class="btns"><button class="btn gh" data-a="toast" data-v="Отчёт за октябрь скачан">${ic('download')}PDF</button><button class="btn" data-a="go" data-v="profile">Пульс бизнеса</button></div></div>`,
+ loyalty:m=>{const s=m.s;if(s.done)return `<div class="wg"><div class="done">${ic('check')}Рассылка запущена. Результат покажу через 7 дней</div></div>`;
+  const ret=[[6,9],[8,11],[5,7]][s.o],cost=[3720,3720,2480][s.c];
+  return `<div class="wg"><div class="kv"><span>Аудитория</span><b>1 240 клиентов</b></div><div class="lbl">Предложение</div><div class="wchips">${['Скидка 10%','Скидка 15%','Кофе в подарок'].map((x,i)=>`<button class="chip ${s.o==i?'on':''}" data-a="wa" data-id="${m.id}" data-v="o:${i}">${x}</button>`).join('')}</div><div class="lbl">Канал</div><div class="wchips">${['Push + SMS','Только push'].map((x,i)=>`<button class="chip ${s.c==i?'on':''}" data-a="wa" data-id="${m.id}" data-v="c:${i}">${x}</button>`).join('')}</div><div class="kv" style="margin-top:8px"><span>Ожидаемый возврат</span><b>${ret[0]}–${ret[1]}% · ~${Math.round(1240*ret[0]/100)} чел.</b></div><div class="kv"><span>Стоимость</span><b>${rub(cost)}</b></div><button class="btn" data-a="wa" data-id="${m.id}" data-v="ok">Запустить · ${rub(cost)}</button></div>`},
+ product:m=>{const s=m.s;const V=[['Круассан с миндалём, 90 г','Хрустящий слоёный круассан на сливочном масле с миндальным кремом. Выпекаем каждое утро.'],['Миндальный круассан ручной работы','Слоёное тесто на сливочном масле 82,5%, начинка из миндального крема и хлопья миндаля сверху.']][s.v];
+  if(s.done)return `<div class="wg"><div class="done">${ic('check')}Карточка опубликована на маркетплейсе</div></div>`;
+  return `<div class="wg"><div class="pc"><div class="img"></div><div><b>${V[0]}</b><div class="psub" style="font-size:13px">${V[1]}</div><div style="margin-top:6px;font-weight:600">220 ₽</div></div></div><div class="btns"><button class="btn gh" data-a="wa" data-id="${m.id}" data-v="v">${ic('refresh')}Другой вариант</button><button class="btn" data-a="wa" data-id="${m.id}" data-v="ok">Опубликовать</button></div></div>`},
+ pulse:()=>st.stage=='new'?`<div class="wg"><div class="wh"><span>Готовность к старту</span><span class="tag">${LSTEPS.filter(stepDone).length} из ${LSTEPS.length}</span></div><button class="btn" data-a="say" data-v="Следующий шаг запуска">Следующий шаг</button></div>`:
+  `<div class="wg"><div class="trk"><div class="l">${METRICS.map(x=>`<div class="kv"><span>${x.name}</span><b>${x.v} <span style="color:${x.d<0?'var(--bad)':'var(--acc)'}">${x.d>0?'+':''}${x.d}</span></b></div>`).join('')}</div></div><div class="btns"><button class="btn gh" data-a="go" data-v="profile">Открыть Пульс</button><button class="btn" data-a="say" data-v="Лояльность клиентов">Вернуть клиентов</button></div></div>`,
+ support:()=>`<div class="wg"><div class="mgr"><span class="ph">А</span><div><b style="font-weight:600">Анна</b><div class="psub" style="margin-top:0">Специалист поддержки · онлайн</div></div></div></div>`,
+ qr:m=>`<div class="wg" style="text-align:center"><div class="qrbox">${qrSvg()}</div><div class="psub">${ORG.short} · счёт ••1234</div><div class="btns"><button class="btn gh" data-a="toast" data-v="QR-код сохранён">${ic('download')}Сохранить</button><button class="btn" data-a="toast" data-v="Ссылка на оплату скопирована">Ссылка</button></div></div>`,
+ pay:m=>{const s=m.s;if(s.done)return `<div class="wg"><div class="done">${ic('check')}Платёж ${s.sum} ₽ отправлен — исполним сегодня</div></div>`;
+  return `<div class="wg">${[['rcp','Получатель'],['inn','ИНН'],['sum','Сумма, ₽'],['dst','Назначение']].map(([k,l])=>`<label class="fld"><span>${l}</span><input value="${esc(s[k])}" data-in="pay" data-id="${m.id}" data-k="${k}"></label>`).join('')}<div class="btns"><button class="btn gh" data-a="toast" data-v="Сохранено в черновики">В черновик</button><button class="btn" data-a="wa" data-id="${m.id}" data-v="ok">Оплатить</button></div></div>`},
+ account:()=>`<div class="wg"><div class="wbig">${rub(st.bal,2)}</div><div class="psub">Доступно для платежей</div><div style="margin-top:8px">${[['Поступления сегодня','+456 234,50 ₽'],['Списания сегодня','−1 444 890,54 ₽'],['Ожидает исполнения','−10 500,00 ₽']].map(([k,v])=>`<div class="kv"><span>${k}</span><b>${v}</b></div>`).join('')}</div><div class="btns"><button class="btn gh" data-a="say" data-v="Реквизиты">Реквизиты</button><button class="btn" data-a="say" data-v="Выписка">Выписка</button></div></div>`,
+ salary:m=>m.s.done?`<div class="wg"><div class="done">${ic('check')}Зарплата 384 000 ₽ отправлена 6 сотрудникам</div></div>`:`<div class="wg">${[['Пекари','3 сотрудника','198 000 ₽'],['Бариста','2 сотрудника','124 000 ₽'],['Администратор','1 сотрудник','62 000 ₽']].map(([n,d,v])=>`<div class="it"><span class="nn"><b>${n}</b><small>${d}</small></span><span class="sm">${v}</span></div>`).join('')}<div class="kv"><span>НДФЛ и взносы</span><b>рассчитаем сами</b></div><button class="btn" data-a="wa" data-id="${m.id}" data-v="ok">Выплатить 384 000 ₽</button></div>`,
+ acq:m=>m.s.done?`<div class="wg"><div class="done">${ic('check')}Заявка на терминал принята — привезём за 2 дня</div></div>`:`<div class="wg"><div class="kv"><span>Оборот за октябрь</span><b>1 276 500 ₽</b></div><div class="kv"><span>Комиссия</span><b>1,5% · 19 150 ₽</b></div><div class="kv"><span>Доля оплат картой</span><b>74%</b></div><div class="btns"><button class="btn gh" data-a="say" data-v="Получить оплату по QR">QR дешевле</button><button class="btn" data-a="wa" data-id="${m.id}" data-v="ok">Ещё терминал</button></div></div>`,
+ kassa:()=>`<div class="wg"><div class="kv"><span>Статус</span><b style="color:var(--acc)">На связи</b></div><div class="kv"><span>Чеков за октябрь</span><b>2 104</b></div><div class="kv"><span>Замена ФН</span><b>через 74 дня</b></div><button class="btn gh" data-a="toast" data-v="Напомним за 14 дней">Напомнить о замене</button></div>`,
+ check:()=>`<div class="wg"><div class="wt">ООО «Мука и Ко»</div><div class="psub">ИНН 7708123456 · с 2017 года</div><div style="margin-top:8px">${[['Риск','Низкий'],['Суды','Нет активных'],['Налоговые долги','Нет'],['Оборот за год','48 млн ₽']].map(([k,v])=>`<div class="kv"><span>${k}</span><b>${v}</b></div>`).join('')}</div><button class="btn" data-a="say" data-v="Счета к оплате">Оплатить счёт поставщика</button></div>`,
+ launch:m=>{const s=m.s,id=s.step;if(!id)return `<div class="wg"><div class="done">${ic('check')}Маршрут запуска пройден</div></div>`;
+  if(st.ls[id]&&!s.done)s.done=1;
+  if(s.done)return `<div class="wg"><div class="done">${ic('check')}${({location:'Локация выбрана',audience:'Аудитория сохранена',acquisition:'Реклама запущена на 14 дней',firstsale:'Первая продажа — 4 250 ₽!'})[id]}</div></div>`;
+  if(id=='location')return `<div class="wg">${LOCS.map(([n,sc,r,d],i)=>`<button class="it" data-a="wa" data-id="${m.id}" data-v="loc:${i}"><span class="cb ${(s.loc||0)==i?'on':''}" style="border-radius:50%">${ic('check')}</span><span class="nn"><b>${n}</b><small>${r} · ${d}</small></span><span class="tag">${sc}</span></button>`).join('')}<button class="btn" data-a="wa" data-id="${m.id}" data-v="ok">Выбрать</button></div>`;
+  if(id=='audience')return `<div class="wg"><ul class="bul"><li>25–44 года, живут или работают рядом</li><li>Покупают в будни утром</li><li>Высокая вероятность повторных покупок</li></ul><div class="kv"><span>Потенциальный охват</span><b>24 800 человек</b></div><button class="btn" data-a="wa" data-id="${m.id}" data-v="ok">Сохранить аудиторию</button></div>`;
+  if(id=='acquisition')return `<div class="wg"><div class="wchips">${['Таргет в соцсетях','Продвижение в картах','Реклама рядом'].map((x,i)=>`<button class="chip ${(s.ch||0)==i?'on':''}" data-a="wa" data-id="${m.id}" data-v="ch:${i}">${x}</button>`).join('')}</div><div class="kv" style="margin-top:8px"><span>Охват</span><b>${['18 400','9 600','4 200'][s.ch||0]}</b></div><div class="kv"><span>Бюджет</span><b>${['30 000 ₽','1 500 ₽ / мес.','12 000 ₽'][s.ch||0]}</b></div><button class="btn" data-a="wa" data-id="${m.id}" data-v="ok">Запустить</button></div>`;
+  return `<div class="wg"><ul class="bul"><li>Терминал эквайринга подключён</li><li>QR-код СБП на кассе</li><li>Онлайн-касса на связи</li></ul><button class="btn" data-a="wa" data-id="${m.id}" data-v="ok">Симулировать первую оплату</button></div>`}
+};
+function wAct(m,v){const [a,x]=v.split(':');const s=m.s;
+ if(a=='tog'){s.sel[+x]=s.sel[+x]?0:1}
+ else if(a=='cf'){s.cf=1}else if(a=='cancel'){s.cf=0}
+ else if(['p','f','o','c','t','ch'].includes(a)){s[a]=+x}
+ else if(a=='a'){s.a=+x}else if(a=='l'){s.l[+x]=s.l[+x]?0:1}else if(a=='v'){s.v=s.v?0:1}else if(a=='loc'){s.loc=+x}
+ else if(a=='ok'){
+  if(m.w=='list'){const L=LISTS[s.k];const sel=L.all?L.items.map(()=>1):s.sel;const sum=L.items.reduce((t,it,i)=>t+(sel[i]&&it[2]?it[2]:0),0);s.done=1;s.sum=sum;save();drawAll();L.after(sel.filter(Boolean).length,sum);return}
+  s.done=1;
+  if(m.w=='piggy'){st.piggy=1;st.pig+=s.a;st.bal-=s.a;s.open=1;follow('Копилка открыта. Первые проценты начислю 1 декабря.',['Выписка','Вывести средства'])}
+  if(m.w=='withdraw'){st.bal-=s.a;follow('Деньги уже на карте. Налоговых последствий для ИП нет.',['Выписка','Налоги'])}
+  if(m.w=='card'){st.cardOn=1;follow('Карта в разделе счетов. Траты по ней сразу попадут в аналитику расходов.',['Лимиты','Как дела у бизнеса?'])}
+  if(m.w=='credit')follow('Заявка у кредитного специалиста. Данные бизнеса уже заполнены — документы не нужны.',['План роста выручки'])
+  if(m.w=='loyalty')follow('Рассылка уйдёт сегодня в 12:00. Через неделю покажу, сколько клиентов вернулось.',['Карточка товара','План роста выручки'])
+  if(m.w=='product')follow('Опубликовал. Карточка появится в поиске маркетплейса в течение часа.',['Лояльность клиентов'])
+  if(m.w=='salary')follow('Зарплата ушла. НДФЛ и взносы уплатим 28-го автоматически.',['Налоги','Выписка'])
+  if(m.w=='acq')follow('Менеджер свяжется, чтобы согласовать время доставки.',['Онлайн-касса'])
+  if(m.w=='statement')toast('Выписка отправлена на почту');
+  if(m.w=='limits')toast('Лимиты сохранены');
+  if(m.w=='pay'){st.bal-=parseInt(String(s.sum).replace(/\D/g,''))||0;st.t.bill=Math.max(0,st.t.bill-1)}
+  if(m.w=='launch'){const id=s.step;st.ls[id]=1;if(id=='location')st.locName=LOCS[s.loc||0][0];
+   if(id=='firstsale'){save();drawAll();setTimeout(()=>{push(BOT('🎉 Первая продажа! Теперь в профиле появится Пульс бизнеса — оценка будет уточняться по мере накопления данных.','',{}));st.stage='active';st.grad=1;lastSug=['Как дела у бизнеса?'];save();drawAll()},500);return}
+   const n=nextStep();setTimeout(()=>{push(BOT(launchText(n),'launch',{step:n}));lastSug=['Как дела у бизнеса?'];save();drawFeed(true)},450)}
+ }
+ save();drawAll()}
+function qrSvg(){let r='';const N=21;let seed=7;const rnd=()=>(seed=(seed*9301+49297)%233280)/233280;for(let y=0;y<N;y++)for(let x=0;x<N;x++){const f=(x<7&&y<7)||(x>N-8&&y<7)||(x<7&&y>N-8);if(f){const cx=x<7?0:N-7,cy=y<7?0:N-7,dx=x-cx,dy=y-cy;if(dx==0||dy==0||dx==6||dy==6||(dx>1&&dx<5&&dy>1&&dy<5))r+=`<rect x="${x}" y="${y}" width="1" height="1"/>`}else if(rnd()>.52)r+=`<rect x="${x}" y="${y}" width="1" height="1"/>`}return `<svg viewBox="0 0 21 21" width="100%" height="100%" fill="#1f1f22" shape-rendering="crispEdges">${r}</svg>`}
+
+/* ================= Radial chart (Пульс в профиле) ================= */
+function radial(size=128){const cx=64,cy=64,rings=5,r0=24,rw=6.4,gap=1.6,n=METRICS.length,seg=360/n,pad=5;let p='';
+ const arc=(r1,r2,a1,a2)=>{const t=a=>(a-90)*Math.PI/180,P=(r,a)=>[cx+r*Math.cos(t(a)),cy+r*Math.sin(t(a))];const [x1,y1]=P(r2,a1),[x2,y2]=P(r2,a2),[x3,y3]=P(r1,a2),[x4,y4]=P(r1,a1);const lg=a2-a1>180?1:0;return `M${x1},${y1}A${r2},${r2} 0 ${lg} 1 ${x2},${y2}L${x3},${y3}A${r1},${r1} 0 ${lg} 0 ${x4},${y4}Z`};
+ METRICS.forEach((m,i)=>{const filled=Math.round(m.v/100*rings);for(let k=0;k<rings;k++){const r1=r0+k*(rw+gap),r2=r1+rw;const on=k<filled;p+=`<path d="${arc(r1,r2,i*seg+pad/2,(i+1)*seg-pad/2)}" fill="${on?m.c:'var(--line)'}" opacity="${on?(.55+.45*(k+1)/rings):1}"><title>${m.name}: ${m.v}</title></path>`}});
+ return `<svg class="rad" viewBox="0 0 128 128" width="${size}" height="${size}" role="img" aria-label="Здоровье бизнеса ${SCORE} из 100">${p}<text x="64" y="69" text-anchor="middle" font-size="17" font-weight="600" fill="currentColor" font-family="Onest,sans-serif">${SCORE}</text></svg>`}
+function ring(done,total){const c=2*Math.PI*48,v=done/total;return `<svg class="rad" viewBox="0 0 128 128" width="128" height="128"><circle cx="64" cy="64" r="48" fill="none" stroke="var(--line)" stroke-width="12"/><circle cx="64" cy="64" r="48" fill="none" stroke="url(#lg)" stroke-width="12" stroke-linecap="round" stroke-dasharray="${c*v} ${c}" transform="rotate(-90 64 64)"/><defs><linearGradient id="lg"><stop offset="0" stop-color="#C6F36B"/><stop offset="1" stop-color="#2BC4B3"/></linearGradient></defs><text x="64" y="70" text-anchor="middle" font-size="19" font-weight="600" fill="currentColor" font-family="Onest,sans-serif">${done}/${total}</text></svg>`}
+
+/* ================= Home view ================= */
+const CH1=['Налоги','Реквизиты','Открыть копилку','Выписка','Счета к оплате','Лимиты','Вывести средства','Бизнес-карта','На подпись','Платёж по реквизитам','Получить оплату по QR','Зарплатный проект','Эквайринг','Баланс по счёту'];
+const CH2=['Как дела у бизнеса?','Кредит на развитие','План роста выручки','Финансовая отчётность','Лояльность клиентов','Карточка товара','Поддержка','Онлайн-касса','Свободные деньги под процент','Проверить контрагента'];
+const CHN=['Следующий шаг запуска','Подобрать локацию','Реквизиты','Получить оплату по QR','Эквайринг','Онлайн-касса','Бизнес-карта','Поддержка'];
+function homeHTML(){return `<header class="top" id="top"></header><div id="strip"></div>
+ <section class="chat"><button class="menu" data-a="menu" aria-label="Меню">${ic('menu')}</button><div class="feed" id="feed"></div><div id="sugw"></div>
+ <form class="inp" id="cf"><input id="q" placeholder="Напишите сообщение" autocomplete="off" aria-label="Сообщение"><div class="ia"><button type="button" class="clip" data-a="attach" aria-label="Прикрепить счёт">${ic('clip')}</button><button class="go" id="go" aria-label="Отправить">${ic('send')}</button></div></form>
+ <div class="terms"><button data-a="terms">Условия использования</button></div></section>`}
+function drawTop(){const el=document.getElementById('top');if(!el)return;
+ const accs=[`<button class="acc" data-a="say" data-v="Баланс по счёту"><span class="l"><span class="bal">${rub(st.bal,2)}<i></i></span><span class="sub" style="display:block">Доступно для платежей</span></span><span class="fig"><span class="o">−1 444 890,54 ₽</span><br><span class="in">+456 234,50 ₽</span><br>−10 500,00 ₽</span></button>`];
+ if(st.piggy)accs.push(`<button class="acc" data-a="say" data-v="Копилка"><span class="l"><span class="bal">${rub(st.pig,2)}<i class="pg"></i></span><span class="sub" style="display:block">Копилка · 14% годовых</span></span><span class="fig"><span class="in">+${rub(Math.round(st.pig*.14/12))}</span><br>в месяц</span></button>`);
+ accs.push(`<button class="acc" data-a="say" data-v="Бизнес-карта"><span class="l"><span class="bal">${st.cardOn?'250 000,00 ₽':'Бизнес-карта'}<i class="cd"></i></span><span class="sub" style="display:block">${st.cardOn?'Карта ••7781 · лимит на закупки':'Выпустить бесплатно'}</span></span></button>`);
+ el.innerHTML=`<div class="hrow"><button class="ib" data-a="go" data-v="profile" aria-label="Профиль">${ic('user')}</button><button class="org" data-a="orgs"><span>${st.stage=='new'?'ИП Петров А. С.':ORG.short}</span>${ic('down')}</button><button class="ib" data-a="search" aria-label="Поиск">${ic('search')}</button><button class="ib" data-a="notif" aria-label="Уведомления">${ic('bell')}<span class="dot"></span></button></div>
+ <div class="acw"><div><div class="accs" id="accs"><button class="qrt" data-a="scan" aria-label="Оплатить по QR">${ic('scan')}</button>${accs.join('')}</div><div class="dots" id="dots">${accs.map((_,i)=>`<i class="${i==0?'on':''}"></i>`).join('')}</div></div></div><button class="hdl" data-a="expand" aria-label="Показать счета"><i></i></button>`;
+ const a=document.getElementById('accs');a.addEventListener('scroll',()=>{const w=a.querySelector('.acc').offsetWidth+8;const i=Math.round(a.scrollLeft/w);document.querySelectorAll('#dots i').forEach((d,k)=>d.classList.toggle('on',k==i))},{passive:true})}
+function drawStrip(){const el=document.getElementById('strip');if(!el)return;
+ const T=[['tax','Оплатите налоги','Налоги'],['bill','Оплатите счёт','Счета к оплате'],['sign','На подпись','На подпись']].filter(([k])=>st.t[k]>0);
+ if(st.stage=='new'){const d=LSTEPS.filter(stepDone).length;el.innerHTML=`<div class="strip orange"><div class="tasks"><button data-a="say" data-v="Следующий шаг запуска" style="flex:1">Следующий шаг запуска<b>${d}/${LSTEPS.length}</b></button></div></div>`;return}
+ el.innerHTML=T.length?`<div class="strip orange"><div class="tasks">${T.map(([k,l,q])=>`<button data-a="say" data-v="${q}"><span>${l.replace(' ','<br>')}</span><b>${st.t[k]>99?'+99':st.t[k]}</b></button>`).join('')}</div></div>`
+ :st.stripX?'':`<div class="strip green">Все налоги оплачены<button class="x" data-a="stripx" aria-label="Скрыть">${ic('close')}</button></div>`}
+function drawFeed(scroll){const f=document.getElementById('feed');if(!f)return;
+ if(!st.msgs.length){const r1=st.stage=='new'?CHN:CH1;const mq=(arr,id,rev,d)=>{const g=h=>`<div class="mqg" ${h?'aria-hidden="true"':''}>${arr.map(c=>`<button class="chip" data-a="say" data-v="${c}" ${h?'tabindex="-1"':''}>${c}</button>`).join('')}</div>`;return `<div class="mq ${rev?'rev':''}" id="${id}" style="--d:${d}s">${'<div class="mqt">'+g(0)+g(1)+'</div>'}</div>`};
+  f.innerHTML=`<div class="hello"><h1>Это Бизнес-помощник.<br>С чего начнём?</h1><div class="rows">${mq(r1,'r1',0,r1.length*4.2)}${mq(CH2,'r2',1,CH2.length*4.8)}</div></div>`;
+  f.querySelectorAll('.mq').forEach(el=>{let t;el.addEventListener('pointerdown',()=>{el.classList.add('hold');clearTimeout(t)});el.addEventListener('pointerup',()=>{t=setTimeout(()=>el.classList.remove('hold'),1800)});el.addEventListener('pointerleave',()=>{t=setTimeout(()=>el.classList.remove('hold'),600)})});
+  document.getElementById('sugw').innerHTML='';return}
+ f.innerHTML=`<div class="msgs">${st.msgs.map(m=>m.b?`<div class="m b"><span class="av">${m.mgr?'<b style="font-size:12px">А</b>':ic('spark')}</span><div class="bd">${m.mgr?'<div class="nm">Анна · поддержка</div>':''}<div class="tx">${m.tx}</div>${m.w&&W[m.w]?W[m.w](m):''}</div></div>`:`<div class="m u">${m.tx}</div>`).join('')}<div id="ty"></div></div>`;
+ document.getElementById('sugw').innerHTML=lastSug?`<div class="sug">${lastSug.map(c=>`<button class="chip" data-a="say" data-v="${c}">${c}</button>`).join('')}</div>`:'';
+ if(scroll)f.scrollTop=f.scrollHeight}
+function showTyping(){const t=document.getElementById('ty');if(t){t.innerHTML='<div class="m b"><span class="av">'+ic('spark')+'</span><div class="typing"><i></i><i></i><i></i></div></div>';const f=document.getElementById('feed');f.scrollTop=f.scrollHeight}}
+function hideTyping(){const t=document.getElementById('ty');if(t)t.innerHTML=''}
+
+/* ================= Profile view ================= */
+const COVER=`<div class="cvr" aria-label="надо крутиться, бизнес, Москва, сами понимаете" role="img"><svg class="tx" aria-hidden="true"><defs><filter id="fab"><feTurbulence type="fractalNoise" baseFrequency=".9 .35" numOctaves="2" seed="4"/><feColorMatrix values="0 0 0 0 .45  0 0 0 0 .1  0 0 0 0 .2  0 0 0 .9 0"/></filter><filter id="knit"><feTurbulence type="fractalNoise" baseFrequency="1.2 .5" numOctaves="1" seed="2" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.4"/></filter><pattern id="rib" width="3" height="3" patternUnits="userSpaceOnUse"><rect width="1.4" height="3" fill="rgba(90,10,35,.35)"/></pattern></defs><rect width="100%" height="100%" filter="url(#fab)"/><rect width="100%" height="100%" fill="url(#rib)" opacity=".5"/></svg><svg class="lt" viewBox="0 0 340 92" aria-hidden="true"><g filter="url(#knit)" fill="rgba(238,228,234,.93)" font-family="'Exo 2',Onest,sans-serif" font-weight="600" font-size="28"><text x="170" y="34" text-anchor="middle" textLength="300" lengthAdjust="spacingAndGlyphs">надо крутиться, бизнес,</text><text x="170" y="76" text-anchor="middle" textLength="322" lengthAdjust="spacingAndGlyphs">Москва, сами понимаете</text></g></svg></div>`;
+function profileHTML(){const nw=st.stage=='new';const done=LSTEPS.filter(stepDone).length;const ns=LSTEPS.find(s=>!stepDone(s));
+ const recs=nw?[{t:'Реквизиты для оплат',p:'Отправьте поставщикам и первым клиентам.',tag:'Готово',i:'req'},{t:'Получить оплату по QR',p:'Комиссия 0,4% — дешевле карт.',tag:'Выгода',i:'qrpay'},{t:'Подбор локации',p:'Три района под пекарню-кофейню.',tag:'Шаг запуска',tc:'o',i:'launch'},{t:'Бизнес-карта',p:'Разделите личные и бизнес-траты с первого дня.',tag:'Сервис',i:'card'}]:RECS;
+ return `<div class="prof" id="prof"><div class="hero" style="${st.cover?`background:url(${st.cover}) center/cover`:''}">${st.cover?'':COVER}<div class="hb"><button class="gb" data-a="go" data-v="home" aria-label="Назад">${ic('back')}</button><div style="display:flex;gap:8px"><button class="gb" data-a="settings" aria-label="Настройки">${ic('gear')}</button><button class="gb" data-a="logout" aria-label="Выйти">${ic('logout')}</button></div></div><button class="cov" data-a="cover">${ic('image').replace('<svg','<svg style="width:14px;height:14px;display:inline-block;vertical-align:-2px;margin-right:4px"')}Обложка</button></div>
+ <div class="pbody">
+  <section class="pcard first"><div class="ava"><div>${nw?'АП':ORG.ini}</div></div>
+   <div class="lvl">${nw?'Вы — на старте':'Вы — развиваетесь'}<span class="bar"><i style="width:${nw?done/LSTEPS.length*100:72}%"></i></span></div>
+   <div class="pname">${nw?'Алексей<br>Петров':'Епифан<br>Танакаси'}</div>
+   <div class="pgoal">Главная задача: ${nw?'открыть точку и получить первых клиентов.':'удержать клиентов и сохранить темп роста.'}</div>
+   <div class="pstats">${(nw?[['0','мес. в бизнесе'],['2','сотрудника'],[done+'/8','шагов запуска']]:[['2','года в отрасли'],['6','сотрудников'],['+18 %','рост выручки']]).map(([b,s])=>`<div><b>${b}</b><small>${s}</small></div>`).join('')}</div>
+  </section>
+  ${st.grad&&!nw?`<section class="pcard" style="display:flex;gap:10px;align-items:flex-start"><span style="color:var(--acc)">${ic('spark')}</span><div style="flex:1"><b style="font-weight:600">Добро пожаловать в Пульс</b><div class="psub">Первые продажи прошли — показываем здоровье бизнеса. Оценка уточняется по мере накопления данных.</div></div><button data-a="grad" aria-label="Скрыть" style="color:var(--mut)">${ic('close')}</button></section>`:''}
+  <section class="pcard">${nw?`<div class="trk"><div class="l"><div class="ptitle">Готовность к старту</div><div class="psub">Пульс бизнеса появится после первых продаж — когда накопятся данные.</div><button class="sbtn" data-a="sources">${ic('download')}Загрузить данные</button></div>${ring(done,LSTEPS.length)}</div>`
+   :`<div class="trk"><div class="l"><div class="ptitle">Пульс бизнеса</div><div class="psub">Здоровье бизнеса — ${SCORE} из 100, +5 за неделю</div><button class="sbtn" data-a="sources">${ic('download')}Загрузить данные</button></div><button data-a="pulse" aria-label="Подробнее о показателях">${radial()}</button></div>
+   <div class="legend">${METRICS.map(m=>`<button data-a="metric" data-v="${m.id}"><i style="background:${m.c}"></i>${m.name}<b>${m.v} <span style="color:${m.d<0?'var(--bad)':'var(--acc)'};font-weight:500">${m.d>0?'+':''}${m.d}</span></b></button>`).join('')}</div>`}
+  </section>
+  <section class="pcard"><button class="next" data-a="tochat" data-v="${nw?'launch':'loyalty'}"><span class="l"><span style="display:flex;align-items:center;gap:8px;justify-content:space-between"><span class="ptitle">Что вам делать дальше</span><span class="tag">Рекомендуем</span></span><span class="psub" style="display:block">${nw?(ns?ns[1]+' — следующий шаг запуска.':'Все шаги пройдены.'):'Верните постоянных клиентов: повторные покупки −14%. Подключите программу лояльности.'}</span></span>${ic('chev')}</button></section>
+  <section class="pcard"><div class="ptitle">Рекомендации и сервисы</div><div class="rgrid">${recs.map(r=>`<button class="rt" data-a="tochat" data-v="${r.i}"><span class="h">${r.t}${ic('chev')}</span><p>${r.p}</p><span class="tag ${r.tc||''}">${r.tag}</span></button>`).join('')}</div></section>
+  <p class="pfoot">Действия по рекомендациям выполняются в чате · Демонстрационные данные</p>
+ </div></div>`}
+
+/* ================= Render ================= */
+function render(){const app=document.getElementById('app');app.dataset.theme=st.theme=='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):st.theme;
+ const v=st.view=='profile'?'profile':'home';
+ app.innerHTML=`<div class="sb ${v=='profile'&&!st.coverDark?'lt':''}"><span>18:41</span><span style="display:flex;gap:5px;align-items:center"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx=".7"/><rect x="4.5" y="5" width="3" height="6" rx=".7"/><rect x="9" y="2.5" width="3" height="8.5" rx=".7"/><rect x="13.5" y="0" width="3" height="11" rx=".7"/></svg><svg width="24" height="11" viewBox="0 0 24 11"><rect x=".5" y=".5" width="21" height="10" rx="3" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="18" height="7" rx="1.8" fill="currentColor"/></svg></span></div>
+ <div id="view">${v=='home'?homeHTML():profileHTML()}</div>
+ <div class="ov" id="ov" data-a="close"></div><div class="sh" id="sh" role="dialog" aria-modal="true" aria-hidden="true"></div><div class="toast" id="toast" role="status"></div>`;
+ if(v=='home'){drawTop();drawStrip();drawFeed(true);const f=document.getElementById('cf'),q=document.getElementById('q'),go=document.getElementById('go');
+  q.addEventListener('input',()=>{go.classList.toggle('on',!!q.value.trim());if(q.value.trim())setCmp(true)});
+  document.getElementById('top').addEventListener('click',e=>{if(cmp&&!e.target.closest('.ib')){e.stopPropagation();setCmp(false)}});
+  setCmp(cmp,1);
+  f.addEventListener('submit',e=>{e.preventDefault();const t=q.value.trim();if(!t)return;q.value='';go.classList.remove('on');say(t)})}}
+let cmp=false;
+function setCmp(v,silent){cmp=!!v;const a=document.getElementById('app');a.classList.toggle('cmp',cmp)}
+function drawAll(){if(st.view=='profile'){render();return}drawTop();drawStrip();const f=document.getElementById('feed');const y=f?f.scrollTop:0;drawFeed();if(f)f.scrollTop=y}
+
+/* ================= Sheets ================= */
+function sheet(title,body){const sh=document.getElementById('sh');sh.innerHTML=`<div class="gr"></div><div class="shh"><h2>${title}</h2><button class="x" data-a="close" aria-label="Закрыть">${ic('close')}</button></div><div class="shb">${body}</div>`;document.getElementById('ov').classList.add('on');sh.classList.add('on');sh.setAttribute('aria-hidden','false')}
+function closeSheet(){const o=document.getElementById('ov'),s=document.getElementById('sh');o&&o.classList.remove('on');s&&(s.classList.remove('on'),s.setAttribute('aria-hidden','true'))}
+function toast(t){const el=document.getElementById('toast');el.innerHTML=ic('check')+t;el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('on'),2200)}
+const li=(ico,t,s,a,v,right='')=>`<button class="li" data-a="${a}" data-v="${esc(v||'')}"><span class="ri">${ic(ico)}</span><span class="rb"><span class="rt2"><b>${t}</b>${s?`<small>${s}</small>`:''}</span>${right||ic('chev','chev')}</span></button>`;
+function toChat(text,intent,arg){closeSheet();if(st.view!='home'){st.view='home';save();render()}say(text,intent,arg)}
+
+/* ================= Actions ================= */
+const A={
+ close:closeSheet,
+ expand:()=>setCmp(false),
+ say:v=>toChat(v),
+ tochat:v=>{const map={req:'Реквизиты',loyalty:'Лояльность клиентов',card:'Бизнес-карта',credit:'Кредит на развитие',piggy:'Открыть копилку',qrpay:'Получить оплату по QR',product:'Карточка товара',plan:'План роста выручки',report:'Финансовая отчётность',growth:'План роста выручки',launch:'Следующий шаг запуска'};toChat(map[v]||'Реквизиты',v=='growth'?'plan':v)},
+ wa:(v,el)=>{const m=st.msgs.find(x=>x.id==+el.dataset.id);if(m)wAct(m,v)},
+ go:v=>{closeSheet();st.view=v;save();render()},
+ stripx:()=>{st.stripX=1;save();drawStrip()},
+ grad:()=>{st.grad=0;save();render()},
+ toast:v=>toast(v),
+ terms:()=>sheet('Условия использования',`<p class="lead">Бизнес-помощник отвечает на основе данных вашего бизнеса. Платежи и документы исполняются только после вашего подтверждения. Ответы ИИ носят рекомендательный характер.</p>`),
+ menu:()=>sheet('Бизнес-помощник',`${li('plus','Новый диалог','','newchat')}${li('headset','Связаться с поддержкой','Ответ в течение 2 минут','say','Поддержка')}${li('grid','Все сервисы','Банковские и для роста бизнеса','services')}${li('user','Профиль и Пульс бизнеса','','go','profile')}
+  <div class="sec"><h3>История</h3>${li('history','Оплата аренды за ноябрь','Вчера','toast','История — в полной версии')}${li('history','Выписка за октябрь','2 ноября','toast','История — в полной версии')}${li('history','Открытие бизнес-карты','28 октября','toast','История — в полной версии')}</div>`),
+ newchat:()=>{st.msgs=[];lastSug=null;save();closeSheet();drawFeed()},
+ services:()=>sheet('Все сервисы',`<div class="sec" style="margin-top:0"><h3>Банк</h3>${[['doc','Налоги'],['doc','Счета к оплате'],['doc','На подпись'],['copy','Реквизиты'],['download','Выписка'],['trend','Открыть копилку'],['logout','Вывести средства'],['grid','Бизнес-карта'],['grid','Лимиты'],['scan','Получить оплату по QR']].map(([i,t])=>li(i,t,'','say',t)).join('')}</div><div class="sec"><h3>Рост бизнеса</h3>${[['spark','Как дела у бизнеса?'],['trend','План роста выручки'],['doc','Финансовая отчётность'],['user','Лояльность клиентов'],['store','Карточка товара'],['trend','Кредит на развитие']].map(([i,t])=>li(i,t,'','say',t)).join('')}</div>`),
+ orgs:()=>sheet('Компания',ORGS.map(([n,s],i)=>li('store',n,s,i?'toast':'close',i?'Переключение компаний — в полной версии':'',i==0?`<span style="color:var(--acc)">${ic('check')}</span>`:'')).join('')+li('plus','Добавить компанию','','toast','В полной версии')),
+ search:()=>{const items=[...CH1,...CH2,'Счета к оплате','На подпись','Получить оплату по QR'];sheet('Поиск',`<div class="srch">${ic('search')}<input id="sq" placeholder="Операция, сервис или вопрос" autocomplete="off"></div><div id="sr"></div>`);
+  const draw=q=>{const l=items.filter(t=>t.toLowerCase().includes(q.toLowerCase())).slice(0,8);document.getElementById('sr').innerHTML=l.map(t=>li('chat',t,'','say',t)).join('')+(q&&!l.length?li('spark',`Спросить помощника: «${esc(q)}»`,'','say',q):'')};
+  draw('');const i=document.getElementById('sq');i.addEventListener('input',()=>draw(i.value));i.addEventListener('keydown',e=>{if(e.key=='Enter'&&i.value.trim())toChat(i.value.trim())});setTimeout(()=>i.focus(),300)},
+ notif:()=>sheet('Уведомления',[['alert','Показатель «Клиенты» снизился на 6','Вчера, 18:20','metric','clients'],['doc',`${st.t.sign} документов ждут подписи`,'Сегодня, 08:15','say','На подпись'],['doc','Налог УСН — до 28 ноября','Вчера, 10:05','say','Налоги'],['trend','Поступила оплата 48 250 ₽','Сегодня, 09:02','say','Выписка']].filter(x=>!(x[4]=='Налоги'&&!st.t.tax)&&!(x[4]=='На подпись'&&!st.t.sign)).map(([i,t,s,a,v])=>li(i,t,s,a,v)).join('')),
+ scan:()=>sheet('Оплата по QR',`<div class="scan"></div><p class="lead" style="margin-top:10px;text-align:center">Наведите камеру на QR-код счёта или квитанции</p><button class="btn" data-a="scanok">Демо: распознать QR</button>`),
+ scanok:()=>toChat('Оплатить по QR','pay'),
+ attach:()=>toChat('Оплатить счёт из файла schet_318.pdf','pay'),
+ pulse:()=>sheet('Пульс бизнеса',`<div style="display:flex;justify-content:center;color:var(--ink)">${radial(180)}</div><p class="lead" style="text-align:center;margin-top:4px">Хорошее состояние · +5 за неделю</p>${METRICS.map(m=>li('spark',`${m.name} — ${m.v}`,m.q,'metric',m.id,`<span style="color:${m.d<0?'var(--bad)':'var(--acc)'};font-weight:600">${m.d>0?'+':''}${m.d}</span>`)).join('')}`),
+ metric:v=>{const m=METRICS.find(x=>x.id==v);const mx=Math.max(...m.hist),mn=Math.min(...m.hist)-5;
+  sheet(m.name,`<div style="display:flex;align-items:baseline;gap:10px"><span style="font-size:40px;font-weight:600">${m.v}</span><span style="color:${m.d<0?'var(--bad)':'var(--acc)'};font-weight:600">${m.d>0?'+':''}${m.d} за неделю</span></div><div class="wt" style="margin-top:4px">${m.q}</div><div class="mbar">${m.hist.map(x=>`<i style="height:${20+80*(x-mn)/(mx-mn)}%;background:${m.c}"></i>`).join('')}</div><div class="sec"><h3>Что изменилось</h3><ul class="bul">${m.ch.map(x=>`<li>${x}</li>`).join('')}</ul></div><button class="btn" data-a="tochat" data-v="${m.intent}">Обсудить в чате</button>`)},
+ sources:()=>sheet('Источники данных',`${[['Эквайринг и СБП','Подключено'],['Онлайн-касса','Подключено'],['Расчётный счёт','Подключено'],['Учётная система (1С, Excel)','Загрузить файл']].map(([t,s],i)=>li('db',t,s,i<3?'close':'toast',i<3?'':'Загрузка файла — в полной версии',i<3?`<span style="color:var(--acc)">${ic('check')}</span>`:'')).join('')}`),
+ settings:()=>sheet('Настройки',`<div class="sec" style="margin-top:0"><h3>Тема</h3><div class="seg">${[['light','Светлая'],['dark','Тёмная'],['system','Как в системе']].map(([k,n])=>`<button class="${st.theme==k?'on':''}" data-a="theme" data-v="${k}">${n}</button>`).join('')}</div></div>
+  <div class="sec"><h3>Уведомления</h3>${[['push','Push-уведомления'],['mail','Сводка на почту по понедельникам']].map(([k,n])=>`<button class="li" data-a="nt" data-v="${k}"><span class="rb"><span class="rt2"><b>${n}</b></span><span class="sw ${st.notif[k]?'on':''}"></span></span></button>`).join('')}</div>
+  <div class="sec"><h3>Данные</h3>${li('db','Источники данных','Эквайринг, СБП, касса, счёт','sources')}${li('store','Профиль компании',ORG.kind+' · '+ORG.addr,'toast','В полной версии')}</div>
+  <div class="sec"><h3>Демо: стадия бизнеса</h3><div class="seg">${[['new','Новый бизнес'],['active','Действующий']].map(([k,n])=>`<button class="${st.stage==k?'on':''}" data-a="stage" data-v="${k}">${n}</button>`).join('')}</div><p class="lead" style="font-size:12.5px;margin-top:8px">У нового бизнеса вместо Пульса — маршрут запуска. После первой продажи профиль сам переключается на Пульс.</p></div>
+  <button class="btn gh" style="background:var(--w)" data-a="reset">${ic('refresh')}Сбросить демо</button>`),
+ theme:v=>{st.theme=v;save();render();A.settings()},
+ nt:v=>{st.notif[v]=st.notif[v]?0:1;save();A.settings()},
+ stage:v=>{st.stage=v;st.grad=0;st.msgs=[];lastSug=null;if(v=='new')st.ls={};save();render();A.settings()},
+ reset:()=>{const th=st.theme;st=JSON.parse(JSON.stringify(st0));st.theme=th;lastSug=null;save();render();toast('Демо сброшено')},
+ logout:()=>sheet('Выйти из приложения?',`<p class="lead">В прототипе выход вернёт на главный экран.</p><div class="btns"><button class="btn gh" style="background:var(--w)" data-a="close">Отмена</button><button class="btn" data-a="go" data-v="home">Выйти</button></div>`),
+ cover:()=>{const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=()=>{const f=i.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{st.cover=r.result;render()};r.readAsDataURL(f)};i.click()}
+};
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;const a=el.dataset.a;if(!A[a])return;e.preventDefault();A[a](el.dataset.v,el)});
+document.addEventListener('input',e=>{const el=e.target,id=+el.dataset.id;if(!el.dataset.in)return;const m=st.msgs.find(x=>x.id==id);if(!m)return;const v=+el.value,s=m.s;
+ if(el.dataset.in=='pig'){s.a=v;document.getElementById('pa'+id).textContent=rub(v);document.getElementById('pi'+id).textContent='≈ '+rub(Math.round(v*.14/12))}
+ if(el.dataset.in=='lc'){s.c=v;document.getElementById('lc'+id).textContent=rub(v)}
+ if(el.dataset.in=='lp'){s.p=v;document.getElementById('lp'+id).textContent=rub(v)}
+ if(el.dataset.in=='cr'){s.a=v;const mm=[12,24,36][s.t],r=.169/12,pay=v*r/(1-Math.pow(1+r,-mm));document.getElementById('ca'+id).textContent=rub(v);document.getElementById('cp'+id).textContent='≈ '+rub(Math.round(pay));document.getElementById('cs'+id).textContent=(pay/1725000*100).toFixed(1).replace('.',',')+'%'}
+ if(el.dataset.in=='pay'){s[el.dataset.k]=el.value}
+ save()});
+document.addEventListener('keydown',e=>{if(e.key=='Escape')closeSheet()});
+const fit=()=>document.getElementById('app').style.setProperty('--k',Math.min(1,(innerHeight-32)/844));
+addEventListener('resize',fit);fit();
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(st.theme=='system')render()})}catch(e){}
+render();
+</script>
+</body>
+</html>
